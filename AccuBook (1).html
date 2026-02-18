@@ -1,0 +1,2025 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Physio-Books</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=Work+Sans:wght@300;400;500;600&display=swap');
+        :root {
+            --primary-dark: #1a2332;
+            --primary-navy: #2c3e5a;
+            --accent-gold: #d4a574;
+            --accent-amber: #f4a261;
+            --bg-light: #f8f9fa;
+            --bg-card: #ffffff;
+            --text-primary: #1a2332;
+            --text-secondary: #6c757d;
+            --border-color: #e0e5eb;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --info: #17a2b8;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Work Sans', sans-serif; background: var(--bg-light); color: var(--text-primary); overflow-x: hidden; }
+        body.sidebar-open-mobile { overflow: hidden; }
+        .login-container { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-navy) 100%); position: relative; overflow: hidden; }
+        .login-container::before { content: ''; position: absolute; width: 200%; height: 200%; background: radial-gradient(circle at 30% 50%, rgba(212, 165, 116, 0.1) 0%, transparent 50%); animation: pulse 15s ease-in-out infinite; }
+        @keyframes pulse { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(-10%, -10%) scale(1.1); } }
+        .login-card { background: var(--bg-card); padding: 3rem; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); width: 100%; max-width: 420px; position: relative; z-index: 1; animation: slideUp 0.6s ease-out; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .logo { font-family: 'Crimson Pro', serif; font-size: 2.5rem; font-weight: 700; color: var(--primary-dark); margin-bottom: 0.5rem; letter-spacing: -0.02em; }
+        .logo-accent { color: var(--accent-gold); }
+        .login-subtitle { color: var(--text-secondary); margin-bottom: 2rem; font-size: 0.95rem; }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.9rem; color: var(--text-primary); }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.875rem 1rem; border: 2px solid var(--border-color); border-radius: 8px; font-size: 0.95rem; font-family: 'Work Sans', sans-serif; transition: all 0.3s ease; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--accent-gold); box-shadow: 0 0 0 3px rgba(212, 165, 116, 0.1); }
+        .btn-primary { width: 100%; padding: 1rem; background: linear-gradient(135deg, var(--primary-navy) 0%, var(--primary-dark) 100%); color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; margin-top: 0.5rem; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(26,35,50,0.3); }
+        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .demo-credentials { margin-top: 1.5rem; padding: 1rem; background: var(--bg-light); border-radius: 8px; font-size: 0.85rem; color: var(--text-secondary); }
+        .demo-credentials strong { color: var(--text-primary); }
+        .mfa-container { display: none; min-height: 100vh; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-navy) 100%); position: relative; overflow: hidden; }
+        .mfa-container::before { content: ''; position: absolute; width: 200%; height: 200%; background: radial-gradient(circle at 30% 50%, rgba(212, 165, 116, 0.1) 0%, transparent 50%); animation: pulse 15s ease-in-out infinite; }
+        .mfa-card { background: var(--bg-card); padding: 3rem; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); width: 100%; max-width: 500px; position: relative; z-index: 1; animation: slideUp 0.6s ease-out; }
+        .mfa-header { text-align: center; margin-bottom: 2rem; }
+        .mfa-title { font-family: 'Crimson Pro', serif; font-size: 1.75rem; font-weight: 700; color: var(--primary-dark); margin-bottom: 0.5rem; }
+        .mfa-description { color: var(--text-secondary); font-size: 0.9rem; }
+        .qr-code-container { text-align: center; padding: 2rem; background: var(--bg-light); border-radius: 12px; margin-bottom: 1.5rem; }
+        #qrcode { display: inline-block; margin-bottom: 1rem; }
+        .secret-key { font-family: 'Courier New', monospace; font-size: 0.9rem; padding: 0.75rem; background: white; border: 2px dashed var(--border-color); border-radius: 6px; margin-top: 1rem; word-break: break-all; }
+        .backup-codes { background: var(--bg-light); padding: 1.5rem; border-radius: 12px; margin: 1.5rem 0; }
+        .backup-codes-title { font-weight: 600; margin-bottom: 1rem; color: var(--primary-dark); }
+        .backup-codes-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+        .backup-code { font-family: 'Courier New', monospace; font-size: 0.85rem; padding: 0.5rem; background: white; border: 1px solid var(--border-color); border-radius: 4px; text-align: center; }
+        .alert { padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; font-size: 0.9rem; }
+        .alert-warning { background: rgba(255,193,7,0.15); border: 1px solid var(--warning); color: #856404; }
+        .alert-info { background: rgba(23,162,184,0.15); border: 1px solid var(--info); color: #0c5460; }
+        .mfa-code-input { text-align: center; font-size: 1.5rem; letter-spacing: 0.5rem; font-family: 'Courier New', monospace; font-weight: 600; }
+        .back-link { text-align: center; margin-top: 1rem; }
+        .back-link a { color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
+        .back-link a:hover { color: var(--primary-dark); }
+        .security-badge { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: rgba(40,167,69,0.15); color: var(--success); border-radius: 20px; font-size: 0.85rem; font-weight: 600; margin-bottom: 1rem; }
+        .app-container { display: none; min-height: 100vh; }
+        .app-header { background: var(--bg-card); border-bottom: 1px solid var(--border-color); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100; }
+        .header-left { display: flex; align-items: center; gap: 1.5rem; }
+        .menu-toggle { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 0.5rem; transition: all 0.3s ease; border-radius: 6px; }
+        .menu-toggle:hover { background: var(--bg-light); }
+        .menu-toggle:focus { outline: 2px solid var(--accent-gold); outline-offset: 2px; }
+        .menu-toggle span { width: 25px; height: 3px; background: var(--primary-dark); border-radius: 3px; transition: all 0.3s ease; }
+        .menu-toggle.active span:nth-child(1) { transform: rotate(45deg) translate(7px, 7px); }
+        .menu-toggle.active span:nth-child(2) { opacity: 0; }
+        .menu-toggle.active span:nth-child(3) { transform: rotate(-45deg) translate(7px, -7px); }
+        .header-logo { font-family: 'Crimson Pro', serif; font-size: 1.75rem; font-weight: 700; color: var(--primary-dark); }
+        .header-user { display: flex; align-items: center; gap: 1.5rem; }
+        .user-info { text-align: right; }
+        .user-name { font-weight: 600; font-size: 0.9rem; }
+        .user-role { font-size: 0.8rem; color: var(--text-secondary); }
+        .btn-logout { padding: 0.5rem 1.25rem; background: transparent; border: 2px solid var(--primary-navy); color: var(--primary-navy); border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; font-size: 0.9rem; }
+        .btn-logout:hover { background: var(--primary-navy); color: white; }
+        .app-body { display: flex; position: relative; }
+        .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 98; animation: fadeIn 0.3s ease; cursor: pointer; }
+        .sidebar-overlay.active { display: block; }
+        .sidebar { width: 280px; background: var(--bg-card); border-right: 1px solid var(--border-color); min-height: calc(100vh - 73px); padding: 2rem 0; transition: transform 0.3s ease; position: relative; z-index: 99; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        .sidebar::-webkit-scrollbar { width: 6px; }
+        .sidebar::-webkit-scrollbar-track { background: var(--bg-light); }
+        .sidebar::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
+        .sidebar::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
+        .nav-section { margin-bottom: 2rem; }
+        .nav-section-title { padding: 0 1.5rem; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); margin-bottom: 0.75rem; }
+        .nav-item { padding: 0.875rem 1.5rem; cursor: pointer; transition: all 0.2s ease; border-left: 3px solid transparent; color: var(--text-primary); font-weight: 500; user-select: none; -webkit-tap-highlight-color: transparent; }
+        .nav-item:hover { background: var(--bg-light); border-left-color: var(--accent-gold); }
+        .nav-item:active { transform: scale(0.98); }
+        .nav-item.active { background: linear-gradient(90deg, rgba(212,165,116,0.1) 0%, transparent 100%); border-left-color: var(--accent-gold); color: var(--primary-navy); font-weight: 600; }
+        .main-content { flex: 1; padding: 2.5rem; max-width: 1400px; transition: filter 0.3s ease; }
+        .main-content.sidebar-open { filter: brightness(0.95); }
+        .page-header { margin-bottom: 2rem; animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .page-title { font-family: 'Crimson Pro', serif; font-size: 2.25rem; font-weight: 700; color: var(--primary-dark); margin-bottom: 0.5rem; }
+        .page-subtitle { color: var(--text-secondary); font-size: 1rem; }
+        .card { background: var(--bg-card); border-radius: 12px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid var(--border-color); animation: slideIn 0.5s ease-out; }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+        .card-title { font-family: 'Crimson Pro', serif; font-size: 1.5rem; font-weight: 600; margin-bottom: 1.5rem; color: var(--primary-dark); }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .stat-card { background: var(--bg-card); border-radius: 12px; padding: 1.75rem; border: 1px solid var(--border-color); transition: all 0.3s ease; position: relative; overflow: hidden; }
+        .stat-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--accent-gold); transform: scaleY(0); transition: transform 0.3s ease; }
+        .stat-card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+        .stat-card:hover::before { transform: scaleY(1); }
+        .stat-label { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem; font-weight: 500; }
+        .stat-value { font-family: 'Crimson Pro', serif; font-size: 2rem; font-weight: 700; color: var(--primary-dark); }
+        .stat-change { font-size: 0.85rem; margin-top: 0.5rem; }
+        .stat-change.positive { color: var(--success); }
+        .stat-change.negative { color: var(--danger); }
+        .table-container { overflow-x: auto; margin-top: 1.5rem; }
+        table { width: 100%; border-collapse: collapse; }
+        thead { background: var(--bg-light); }
+        th { padding: 1rem; text-align: left; font-weight: 600; font-size: 0.875rem; color: var(--text-primary); border-bottom: 2px solid var(--border-color); }
+        td { padding: 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem; }
+        td:last-child { white-space: nowrap; }
+        tbody tr { transition: background 0.2s ease; }
+        tbody tr:hover { background: var(--bg-light); }
+        .btn { padding: 0.625rem 1.25rem; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; border: none; font-size: 0.9rem; font-family: 'Work Sans', sans-serif; }
+        .btn-secondary { background: var(--bg-light); color: var(--text-primary); border: 1px solid var(--border-color); }
+        .btn-secondary:hover { background: var(--border-color); }
+        .btn-success { background: var(--success); color: white; }
+        .btn-success:hover { background: #218838; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-danger:hover { background: #c82333; }
+        .btn-danger:disabled { background: #e0e5eb; color: #6c757d; cursor: not-allowed; }
+        .btn-sm { padding: 0.4rem 0.875rem; font-size: 0.825rem; }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .badge { display: inline-block; padding: 0.35rem 0.75rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
+        .badge-success { background: rgba(40,167,69,0.15); color: var(--success); }
+        .badge-warning { background: rgba(255,193,7,0.15); color: #d39e00; }
+        .badge-danger { background: rgba(220,53,69,0.15); color: var(--danger); }
+        .badge-info { background: rgba(23,162,184,0.15); color: var(--info); }
+        .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem; }
+        .action-buttons { display: flex; gap: 1rem; margin-top: 2rem; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; animation: fadeIn 0.3s ease; }
+        .modal-content { background: var(--bg-card); border-radius: 12px; padding: 2.5rem; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; animation: slideUp 0.3s ease-out; position: relative; }
+        .modal-content.large { max-width: 900px; }
+        .modal-header { margin-bottom: 1.5rem; }
+        .modal-title { font-family: 'Crimson Pro', serif; font-size: 1.75rem; font-weight: 600; color: var(--primary-dark); }
+        .close-modal { float: right; font-size: 1.5rem; cursor: pointer; color: var(--text-secondary); transition: color 0.2s; }
+        .close-modal:hover { color: var(--text-primary); }
+        .report-section { margin-bottom: 2.5rem; }
+        .report-header { background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-navy) 100%); color: white; padding: 2rem; border-radius: 12px 12px 0 0; margin: -2rem -2rem 2rem -2rem; }
+        .report-title { font-family: 'Crimson Pro', serif; font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .report-period { opacity: 0.9; font-size: 0.95rem; }
+        .report-table { margin-bottom: 2rem; }
+        .report-table th { background: var(--primary-dark); color: white; padding: 0.875rem 1rem; }
+        .report-total { font-weight: 700; background: var(--bg-light); font-size: 1.05rem; }
+        .amount { text-align: right; font-family: 'Crimson Pro', serif; font-weight: 600; }
+        .amount-positive { color: var(--success); }
+        .amount-negative { color: var(--danger); }
+        .hidden { display: none; }
+        .scan-upload-area { display: flex; gap: 0.5rem; margin-top: 0.5rem; flex-wrap: wrap; }
+        .scan-preview-area { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem; margin-top: 1rem; }
+        .scan-preview-item { position: relative; border: 2px solid var(--border-color); border-radius: 8px; overflow: hidden; background: var(--bg-light); padding: 0.5rem; }
+        .scan-preview-item img { width: 100%; height: 150px; object-fit: cover; border-radius: 4px; }
+        .scan-preview-item.pdf { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 150px; }
+        .scan-preview-item.pdf::before { content: '📄'; font-size: 3rem; margin-bottom: 0.5rem; }
+        .scan-preview-item.word { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 150px; }
+        .scan-preview-item.word::before { content: '📝'; font-size: 3rem; margin-bottom: 0.5rem; }
+        .scan-preview-item.excel { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 150px; }
+        .scan-preview-item.excel::before { content: '📊'; font-size: 3rem; margin-bottom: 0.5rem; }
+        .scan-preview-item.ppt { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 150px; }
+        .scan-preview-item.ppt::before { content: '📋'; font-size: 3rem; margin-bottom: 0.5rem; }
+        .scan-preview-name { font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.5rem; text-align: center; word-break: break-all; }
+        .scan-remove-btn { position: absolute; top: 0.5rem; right: 0.5rem; background: var(--danger); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; font-size: 1rem; line-height: 1; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .scan-remove-btn:hover { background: #c82333; transform: scale(1.1); }
+        .scans-viewer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-top: 1rem; }
+        .scan-viewer-item { border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; background: var(--bg-light); }
+        .scan-viewer-item img { width: 100%; height: 250px; object-fit: contain; background: white; cursor: pointer; transition: transform 0.2s; }
+        .scan-viewer-item img:hover { transform: scale(1.02); }
+        .scan-viewer-item.pdf { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 250px; cursor: pointer; transition: background 0.2s; }
+        .scan-viewer-item.pdf:hover { background: var(--border-color); }
+        .scan-viewer-item.pdf::before { content: '📄'; font-size: 4rem; margin-bottom: 1rem; }
+        .scan-viewer-item.word { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 250px; cursor: pointer; transition: background 0.2s; }
+        .scan-viewer-item.word:hover { background: var(--border-color); }
+        .scan-viewer-item.word::before { content: '📝'; font-size: 4rem; margin-bottom: 1rem; }
+        .scan-viewer-item.excel { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 250px; cursor: pointer; transition: background 0.2s; }
+        .scan-viewer-item.excel:hover { background: var(--border-color); }
+        .scan-viewer-item.excel::before { content: '📊'; font-size: 4rem; margin-bottom: 1rem; }
+        .scan-viewer-item.ppt { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 250px; cursor: pointer; transition: background 0.2s; }
+        .scan-viewer-item.ppt:hover { background: var(--border-color); }
+        .scan-viewer-item.ppt::before { content: '📋'; font-size: 4rem; margin-bottom: 1rem; }
+        .scan-viewer-actions { padding: 0.75rem; display: flex; gap: 0.5rem; justify-content: space-between; align-items: center; }
+        .scan-viewer-filename { font-size: 0.85rem; color: var(--text-secondary); word-break: break-all; }
+        .scan-download-btn { padding: 0.35rem 0.75rem; background: var(--primary-navy); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem; transition: all 0.2s; white-space: nowrap; }
+        .scan-download-btn:hover { background: var(--primary-dark); }
+        .no-scans-message { text-align: center; padding: 3rem; color: var(--text-secondary); }
+        .no-scans-message::before { content: '📭'; font-size: 3rem; display: block; margin-bottom: 1rem; }
+        .scan-count-badge { display: inline-block; background: var(--info); color: white; padding: 0.2rem 0.5rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600; margin-left: 0.5rem; }
+        .checkbox-list { display: flex; flex-direction: column; gap: 0.75rem; }
+        .checkbox-item { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; border-radius: 6px; transition: background 0.2s; }
+        .checkbox-item:hover { background: var(--bg-light); }
+        .checkbox-item input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; }
+        .checkbox-item label { cursor: pointer; margin: 0; flex: 1; }
+        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        .calendar-controls { display: flex; gap: 1rem; align-items: center; }
+        .calendar-month-year { font-size: 1.5rem; font-weight: 600; color: var(--primary-dark); }
+        .btn-calendar-nav { background: var(--bg-light); border: 2px solid var(--border-color); padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; transition: all 0.2s; font-weight: 600; }
+        .btn-calendar-nav:hover { background: var(--primary-navy); color: white; border-color: var(--primary-navy); }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: var(--border-color); border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; }
+        .calendar-day-header { background: var(--primary-dark); color: white; padding: 1rem; text-align: center; font-weight: 600; font-size: 0.9rem; }
+        .calendar-day { background: var(--bg-card); min-height: 120px; padding: 0.5rem; cursor: pointer; transition: all 0.2s; position: relative; }
+        .calendar-day:hover { background: var(--bg-light); }
+        .calendar-day.other-month { background: var(--bg-light); opacity: 0.5; }
+        .calendar-day.today { background: linear-gradient(135deg, rgba(212,165,116,0.1) 0%, rgba(212,165,116,0.05) 100%); border: 2px solid var(--accent-gold); }
+        .calendar-day-number { font-weight: 600; margin-bottom: 0.5rem; color: var(--text-primary); }
+        .calendar-day.today .calendar-day-number { color: var(--accent-gold); }
+        .calendar-events { display: flex; flex-direction: column; gap: 0.25rem; }
+        .calendar-event-item { background: var(--primary-navy); color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; transition: all 0.2s; }
+        .calendar-event-item:hover { transform: scale(1.02); box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .calendar-event-item.event-meeting { background: var(--info); }
+        .calendar-event-item.event-payment { background: var(--danger); }
+        .calendar-event-item.event-reminder { background: var(--warning); }
+        .calendar-event-item.event-other { background: var(--text-secondary); }
+        .calendar-sidebar { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; }
+        .upcoming-events-list { display: flex; flex-direction: column; gap: 1rem; }
+        .upcoming-event { border-left: 4px solid var(--primary-navy); padding: 1rem; background: var(--bg-light); border-radius: 4px; cursor: pointer; transition: all 0.2s; }
+        .upcoming-event:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.1); transform: translateX(4px); }
+        .upcoming-event.event-meeting { border-left-color: var(--info); }
+        .upcoming-event.event-payment { border-left-color: var(--danger); }
+        .upcoming-event.event-reminder { border-left-color: var(--warning); }
+        .upcoming-event-title { font-weight: 600; margin-bottom: 0.5rem; color: var(--primary-dark); }
+        .upcoming-event-date { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.25rem; }
+        .upcoming-event-type { display: inline-block; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; margin-top: 0.5rem; }
+        .event-type-meeting { background: rgba(13,110,253,0.1); color: var(--info); }
+        .event-type-payment { background: rgba(220,53,69,0.1); color: var(--danger); }
+        .event-type-reminder { background: rgba(255,193,7,0.1); color: var(--warning); }
+        .google-sync-status { display: flex; align-items: center; gap: 0.5rem; padding: 1rem; background: rgba(40,167,69,0.1); border-radius: 8px; margin-bottom: 1rem; }
+        .google-sync-status.disconnected { background: rgba(108,117,125,0.1); }
+        .sync-indicator { width: 12px; height: 12px; border-radius: 50%; background: var(--success); }
+        .sync-indicator.disconnected { background: var(--text-secondary); }
+        .calendar-legend { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem; padding: 1rem; background: var(--bg-light); border-radius: 8px; }
+        .legend-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; }
+        .legend-color { width: 16px; height: 16px; border-radius: 4px; }
+        @media (max-width: 768px) {
+            .scan-preview-area { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+            .scans-viewer-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 1024px) {
+            .menu-toggle { display: flex; }
+            .sidebar { position: fixed; top: 73px; left: 0; height: calc(100vh - 73px); transform: translateX(-100%); box-shadow: 2px 0 10px rgba(0,0,0,0.1); overflow-y: auto; }
+            .sidebar.active { transform: translateX(0); }
+            .main-content { width: 100%; padding: 2rem; }
+            .user-info { display: none; }
+            .app-header { padding: 1rem 1.5rem; }
+            .header-logo { font-size: 1.5rem; }
+        }
+        @media (max-width: 768px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .backup-codes-grid { grid-template-columns: 1fr; }
+            .form-row { grid-template-columns: 1fr; }
+            .action-buttons { flex-direction: column; }
+            .action-buttons button { width: 100%; }
+            .btn-logout { padding: 0.4rem 1rem; font-size: 0.85rem; }
+            .login-card, .mfa-card { padding: 2rem 1.5rem; max-width: 95%; }
+            .table-container { font-size: 0.85rem; }
+            th, td { padding: 0.75rem 0.5rem; font-size: 0.85rem; }
+            .main-content { padding: 1.5rem 1rem; }
+            .page-title { font-size: 1.75rem; }
+            .card { padding: 1.5rem; }
+            td:last-child .btn { display: block; width: 100%; margin: 0.25rem 0; }
+            .scan-upload-area { flex-direction: column; }
+            .calendar-day { min-height: 80px; font-size: 0.85rem; }
+        }
+        @media (max-width: 480px) {
+            .header-logo { font-size: 1.25rem; }
+            .logo { font-size: 2rem; }
+            .page-title { font-size: 1.5rem; }
+            .card-title { font-size: 1.25rem; }
+            .stat-value { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Page -->
+    <div id="loginContainer" class="login-container">
+        <div class="login-card">
+            <h1 class="logo">Physio-<span class="logo-accent">Book</span></h1>
+            <p class="login-subtitle">Enterprise Accounting System</p>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" required>
+                </div>
+                <button type="submit" class="btn-primary">Sign In</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MFA Setup Page -->
+    <div id="mfaSetupContainer" class="mfa-container">
+        <div class="mfa-card">
+            <div class="mfa-header">
+                <h2 class="mfa-title">Set Up Two-Factor Authentication</h2>
+                <p class="mfa-description">Secure your account with an additional layer of protection</p>
+            </div>
+            <div class="alert alert-info"><strong>Step 1:</strong> Install an authenticator app like Google Authenticator, Authy, or Microsoft Authenticator.</div>
+            <div class="qr-code-container">
+                <div><strong>Step 2:</strong> Scan this QR code with your authenticator app</div>
+                <div id="qrcode"></div>
+                <div style="margin-top: 1rem; color: var(--text-secondary); font-size: 0.85rem;">Or enter this code manually:</div>
+                <div class="secret-key" id="secretKey"></div>
+            </div>
+            <form id="mfaSetupForm">
+                <div class="form-group">
+                    <label><strong>Step 3:</strong> Enter the 6-digit code from your app</label>
+                    <input type="text" id="setupMfaCode" class="mfa-code-input" maxlength="6" pattern="[0-9]{6}" required placeholder="000000">
+                </div>
+                <div class="alert alert-warning"><strong>⚠️ Save These Backup Codes</strong><br>Store these codes in a safe place.</div>
+                <div class="backup-codes" id="backupCodesDisplay" style="display: none;">
+                    <div class="backup-codes-title">Your Backup Codes:</div>
+                    <div class="backup-codes-grid" id="backupCodesList"></div>
+                </div>
+                <button type="submit" class="btn-primary" id="completeMfaSetup">Complete Setup</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MFA Verification Page -->
+    <div id="mfaVerifyContainer" class="mfa-container">
+        <div class="mfa-card">
+            <div class="mfa-header">
+                <div class="security-badge">🔒 Two-Factor Authentication</div>
+                <h2 class="mfa-title">Enter Authentication Code</h2>
+                <p class="mfa-description">Enter the 6-digit code from your authenticator app</p>
+            </div>
+            <form id="mfaVerifyForm">
+                <div class="form-group">
+                    <label>Authentication Code</label>
+                    <input type="text" id="verifyMfaCode" class="mfa-code-input" maxlength="6" pattern="[0-9]{6}" required placeholder="000000" autofocus>
+                </div>
+                <button type="submit" class="btn-primary">Verify & Sign In</button>
+                <div class="back-link"><a href="#" onclick="useBackupCode(); return false;">Use a backup code instead</a></div>
+                <div class="back-link"><a href="#" onclick="cancelMfaVerification(); return false;">← Back to login</a></div>
+            </form>
+            <div id="backupCodeForm" style="display: none;">
+                <div class="form-group">
+                    <label>Enter Backup Code</label>
+                    <input type="text" id="backupCodeInput" class="mfa-code-input" maxlength="10" required placeholder="XXXX-XXXX">
+                </div>
+                <button class="btn-primary" onclick="verifyBackupCode()">Verify Backup Code</button>
+                <div class="back-link"><a href="#" onclick="useAuthenticatorApp(); return false;">← Use authenticator app</a></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="appContainer" class="app-container">
+        <div class="app-header">
+            <div class="header-left">
+                <button class="menu-toggle" id="menuToggle" onclick="toggleSidebar()" aria-label="Toggle navigation menu">
+                    <span></span><span></span><span></span>
+                </button>
+                <div class="header-logo">Physio-<span class="logo-accent">Book</span></div>
+            </div>
+            <div class="header-user">
+                <div class="user-info">
+                    <div class="user-name" id="currentUserName"></div>
+                    <div class="user-role" id="currentUserRole"></div>
+                </div>
+                <button class="btn-logout" onclick="logout()">Logout</button>
+            </div>
+        </div>
+        <div class="app-body">
+            <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+            <div class="sidebar" id="sidebar"></div>
+            <div class="main-content" id="mainContent"></div>
+        </div>
+    </div>
+    <!-- Modals -->
+    <div id="accountModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('accountModal')">&times;</span>
+            <div class="modal-header"><h2 class="modal-title" id="accountModalTitle">Add Account</h2></div>
+            <form id="accountForm">
+                <div class="form-group"><label>Account Code</label><input type="text" id="accountCode" required></div>
+                <div class="form-group"><label>Account Name</label><input type="text" id="accountName" required></div>
+                <div class="form-group"><label>Account Type</label>
+                    <select id="accountType" required>
+                        <option value="Asset">Asset</option><option value="Liability">Liability</option>
+                        <option value="Equity">Equity</option><option value="Revenue">Revenue</option>
+                        <option value="Expense">Expense</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Description</label><textarea id="accountDescription" rows="3"></textarea></div>
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-success">Save Account</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('accountModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="journalModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('journalModal')">&times;</span>
+            <div class="modal-header"><h2 class="modal-title">New Journal Entry</h2></div>
+            <form id="journalForm">
+                <div class="form-group"><label>Date</label><input type="date" id="journalDate" required></div>
+                <div class="form-group"><label>Description</label><input type="text" id="journalDescription" required></div>
+                <div class="form-group"><label>Debit Account</label><select id="debitAccount" required></select></div>
+                <div class="form-group"><label>Credit Account</label><select id="creditAccount" required></select></div>
+                <div class="form-group"><label>Amount</label><input type="number" id="journalAmount" step="0.01" required></div>
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-success">Post Entry</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('journalModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- INVOICE MODAL - with edit support -->
+    <div id="invoiceModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('invoiceModal')">&times;</span>
+            <div class="modal-header"><h2 class="modal-title" id="invoiceModalTitle">Create Invoice</h2></div>
+            <form id="invoiceForm">
+                <input type="hidden" id="editInvoiceId">
+                <div class="form-row">
+                    <div class="form-group"><label>Invoice Number</label><input type="text" id="invoiceNumber" required></div>
+                    <div class="form-group"><label>Date</label><input type="date" id="invoiceDate" required></div>
+                </div>
+                <div class="form-group"><label>Customer Name</label><input type="text" id="customerName" required></div>
+                <div class="form-group"><label>Description</label><textarea id="invoiceDescription" rows="3" required></textarea></div>
+                <div class="form-row">
+                    <div class="form-group"><label>Amount</label><input type="number" id="invoiceAmount" step="0.01" required></div>
+                    <div class="form-group"><label>Due Date</label><input type="date" id="invoiceDueDate" required></div>
+                </div>
+                <!-- Status field - only shown when editing -->
+                <div class="form-group" id="invoiceStatusGroup" style="display: none;">
+                    <label>Status</label>
+                    <select id="invoiceStatus">
+                        <option value="Pending">Pending</option>
+                        <option value="Paid">Paid</option>
+                        <option value="Overdue">Overdue</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>📄 Attach Documents (Images, PDFs, Word & Office Files)</label>
+                    <div class="alert alert-info" style="margin-bottom: 1rem; font-size: 0.85rem;">
+                        <strong>💡 Supported File Types:</strong><br>
+                        • <strong>Images:</strong> JPG, PNG, GIF<br>
+                        • <strong>Documents:</strong> PDF, Word (.doc, .docx), Excel (.xls, .xlsx), PowerPoint (.ppt, .pptx)<br>
+                        • Max file size: 5MB per file | Total limit: 10MB<br>
+                        • Mobile: Use "Take Photo" to scan with camera
+                    </div>
+                    <div class="scan-upload-area">
+                        <input type="file" id="invoiceScanInput" accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,.doc,.docx,.xls,.xlsx,.ppt,.pptx" multiple style="display: none;" onchange="handleScanUpload(event)">
+                        <button type="button" class="btn btn-secondary" onclick="document.getElementById('invoiceScanInput').click()">📁 Choose Files</button>
+                        <button type="button" class="btn btn-secondary" onclick="captureWithCamera()">📷 Take Photo</button>
+                        <input type="file" id="invoiceCameraInput" accept="image/*" capture="environment" style="display: none;" onchange="handleScanUpload(event)">
+                    </div>
+                    <div id="scanPreviewArea" class="scan-preview-area"></div>
+                </div>
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-success" id="invoiceSubmitBtn">Create Invoice</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('invoiceModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="viewScansModal" class="modal">
+        <div class="modal-content large">
+            <span class="close-modal" onclick="closeModal('viewScansModal')">&times;</span>
+            <div class="modal-header"><h2 class="modal-title" id="viewScansTitle">Invoice Documents</h2></div>
+            <div id="scansViewerContent"></div>
+        </div>
+    </div>
+
+    <div id="contactModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('contactModal')">&times;</span>
+            <div class="modal-header"><h2 class="modal-title" id="contactModalTitle">Add Contact</h2></div>
+            <form id="contactForm">
+                <input type="hidden" id="editContactId">
+                <div class="form-group"><label>Contact Name *</label><input type="text" id="contactName" required></div>
+                <div class="form-row">
+                    <div class="form-group"><label>Contact Type *</label>
+                        <select id="contactType" required>
+                            <option value="Customer">Customer</option><option value="Vendor">Vendor</option>
+                            <option value="Both">Both</option><option value="Partner">Partner</option>
+                            <option value="Employee">Employee</option><option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Email Address *</label><input type="email" id="contactEmail" required></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>Phone</label><input type="tel" id="contactPhone"></div>
+                    <div class="form-group"><label>Mobile</label><input type="tel" id="contactMobile"></div>
+                </div>
+                <div class="form-group"><label>Address</label><textarea id="contactAddress" rows="2"></textarea></div>
+                <div class="form-group"><label>Company</label><input type="text" id="contactCompany"></div>
+                <div class="form-group"><label>Notes</label><textarea id="contactNotes" rows="2"></textarea></div>
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-success" id="contactSubmitBtn">Add Contact</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('contactModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="contactDetailsModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('contactDetailsModal')">&times;</span>
+            <div class="modal-header"><h2 class="modal-title">Contact Details</h2></div>
+            <div id="contactDetailsContent"></div>
+        </div>
+    </div>
+
+    <div id="receiptModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('receiptModal')">&times;</span>
+            <div class="modal-header"><h2 class="modal-title">Add Receipt</h2></div>
+            <form id="receiptForm">
+                <div class="form-row">
+                    <div class="form-group"><label>Date</label><input type="date" id="receiptDate" required></div>
+                    <div class="form-group"><label>Amount</label><input type="number" id="receiptAmount" step="0.01" required></div>
+                </div>
+                <div class="form-group"><label>Vendor</label><input type="text" id="receiptVendor" required></div>
+                <div class="form-group"><label>Category</label>
+                    <select id="receiptCategory" required>
+                        <option value="Office Supplies">Office Supplies</option><option value="Utilities">Utilities</option>
+                        <option value="Travel">Travel</option><option value="Marketing">Marketing</option>
+                        <option value="Meals">Meals & Entertainment</option><option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Description</label><input type="text" id="receiptDescription" required></div>
+                <div class="form-group">
+                    <label>📷 Scan Receipt (Images & PDFs)</label>
+                    <div class="scan-upload-area">
+                        <input type="file" id="receiptScanInput" accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,.doc,.docx,.xls,.xlsx,.ppt,.pptx" multiple style="display: none;" onchange="handleReceiptScanUpload(event)">
+                        <button type="button" class="btn btn-secondary" onclick="document.getElementById('receiptScanInput').click()">📁 Choose Files</button>
+                        <button type="button" class="btn btn-secondary" onclick="captureReceiptWithCamera()">📷 Take Photo</button>
+                        <input type="file" id="receiptCameraInput" accept="image/*" capture="environment" style="display: none;">
+                    </div>
+                    <div id="receiptScanPreviewArea" class="scan-preview-area"></div>
+                </div>
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-success">Save Receipt</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('receiptModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="calendarEventModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('calendarEventModal')">&times;</span>
+            <div class="modal-header"><h2 class="modal-title" id="eventModalTitle">Create Event</h2></div>
+            <form id="calendarEventForm">
+                <input type="hidden" id="eventId">
+                <div class="form-group"><label>Event Type</label>
+                    <select id="eventType" required onchange="updateEventTypeFields()">
+                        <option value="meeting">Meeting</option><option value="payment">Payment Due</option>
+                        <option value="reminder">Reminder</option><option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Title</label><input type="text" id="eventTitle" required></div>
+                <div class="form-row">
+                    <div class="form-group"><label>Date</label><input type="date" id="eventDate" required></div>
+                    <div class="form-group"><label>Time</label><input type="time" id="eventTime" required></div>
+                </div>
+                <div class="form-group" id="eventDurationGroup">
+                    <label>Duration (minutes)</label>
+                    <select id="eventDuration">
+                        <option value="15">15 min</option><option value="30" selected>30 min</option>
+                        <option value="60">1 hour</option><option value="90">1.5 hours</option><option value="120">2 hours</option>
+                    </select>
+                </div>
+                <div class="form-group" id="eventAmountGroup" style="display: none;"><label>Amount</label><input type="number" id="eventAmount" step="0.01" placeholder="0.00"></div>
+                <div class="form-group"><label>Description</label><textarea id="eventDescription" rows="3"></textarea></div>
+                <div class="form-group" id="eventContactGroup"><label>Related Contact</label><select id="eventContact"><option value="">None</option></select></div>
+                <div class="form-group"><label><input type="checkbox" id="syncToGoogle"> Sync to Google Calendar</label></div>
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-success">Save Event</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('calendarEventModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="googleCalendarSyncModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('googleCalendarSyncModal')">&times;</span>
+            <div class="modal-header"><h2 class="modal-title">Google Calendar Integration</h2></div>
+            <div class="alert alert-info"><strong>📅 Connect Google Calendar</strong><br>Sync Physio-Book events with Google Calendar.</div>
+            <button class="btn btn-success" onclick="connectGoogleCalendar()">🔗 Connect Google Calendar</button>
+        </div>
+    </div>
+
+    <!-- EXPENSE MODAL -->
+    <div id="expenseModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('expenseModal')">&times;</span>
+            <div class="modal-header"><h2 class="modal-title" id="expenseModalTitle">Record Expense</h2></div>
+            <form id="expenseForm">
+                <input type="hidden" id="editExpenseId">
+                <div class="form-row">
+                    <div class="form-group"><label>Date</label><input type="date" id="expenseDate" required></div>
+                    <div class="form-group"><label>Amount</label><input type="number" id="expenseAmount" step="0.01" required placeholder="0.00"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>Category</label>
+                        <select id="expenseCategory" required>
+                            <option value="Office Supplies">Office Supplies</option><option value="Utilities">Utilities</option>
+                            <option value="Travel">Travel</option><option value="Marketing">Marketing</option>
+                            <option value="Salaries">Salaries</option><option value="Rent">Rent</option>
+                            <option value="Meals & Entertainment">Meals & Entertainment</option><option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Vendor</label><input type="text" id="expenseVendor" required placeholder="Vendor name"></div>
+                </div>
+                <div class="form-group"><label>Description</label><input type="text" id="expenseDescription" required placeholder="What was this expense for?"></div>
+                <div class="form-group">
+                    <label>📎 Attach Documents (Images, PDFs, Word & Office Files)</label>
+                    <div class="alert alert-info" style="margin-bottom: 1rem; font-size: 0.85rem;">
+                        <strong>💡 Supported File Types:</strong><br>
+                        • <strong>Images:</strong> JPG, PNG, GIF<br>
+                        • <strong>Documents:</strong> PDF, Word (.doc, .docx), Excel (.xls, .xlsx), PowerPoint (.ppt, .pptx)<br>
+                        • Max 5MB per file, 10MB total
+                    </div>
+                    <div class="scan-upload-area">
+                        <input type="file" id="expenseAttachmentInput" accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,.doc,.docx,.xls,.xlsx,.ppt,.pptx" multiple style="display: none;" onchange="handleExpenseAttachmentUpload(event)">
+                        <button type="button" class="btn btn-secondary" onclick="document.getElementById('expenseAttachmentInput').click()">📁 Choose Files</button>
+                        <button type="button" class="btn btn-secondary" onclick="captureExpenseWithCamera()">📷 Take Photo</button>
+                        <input type="file" id="expenseCameraInput" accept="image/*" capture="environment" style="display: none;">
+                    </div>
+                    <div id="expenseAttachmentPreviewArea" class="scan-preview-area"></div>
+                </div>
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-success" id="expenseSubmitBtn">Record Expense</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('expenseModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('userModal')">&times;</span>
+            <div class="modal-header"><h2 class="modal-title" id="userModalTitle">Create New User</h2></div>
+            <form id="userForm">
+                <input type="hidden" id="editUserId">
+                <div class="form-group"><label>Full Name</label><input type="text" id="userName" required placeholder="John Doe"></div>
+                <div class="form-row">
+                    <div class="form-group"><label>Username</label><input type="text" id="userUsername" required placeholder="johndoe"></div>
+                    <div class="form-group"><label>Password</label><input type="password" id="userPassword" required minlength="4" placeholder="Min 4 characters"></div>
+                </div>
+                <div class="form-group"><label>Role</label>
+                    <select id="userRole" required>
+                        <option value="Viewer">Viewer - Read-only</option>
+                        <option value="Accountant">Accountant - Transactions</option>
+                        <option value="Administrator">Administrator - Full access</option>
+                    </select>
+                </div>
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-success">Create User</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('userModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="editRoleModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('editRoleModal')">&times;</span>
+            <div class="modal-header"><h2 class="modal-title">Edit User Role</h2></div>
+            <form id="editRoleForm">
+                <input type="hidden" id="editRoleUserId">
+                <div class="form-group"><label>User</label><input type="text" id="editRoleUserName" readonly style="background: var(--bg-light); cursor: not-allowed;"></div>
+                <div class="form-group"><label>Current Role</label><input type="text" id="editRoleCurrentRole" readonly style="background: var(--bg-light); cursor: not-allowed;"></div>
+                <div class="form-group"><label>New Role</label>
+                    <select id="editRoleNewRole" required>
+                        <option value="Viewer">Viewer</option>
+                        <option value="Accountant">Accountant</option>
+                        <option value="Administrator">Administrator</option>
+                    </select>
+                </div>
+                <div class="alert alert-warning"><strong>⚠️ Warning:</strong> Role changes take effect immediately.</div>
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-success">Update Role</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('editRoleModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/otpauth/9.1.4/otpauth.umd.min.js"></script>
+    <script>
+        let currentUser = null;
+        let pendingMfaUser = null;
+        let currentTOTP = null;
+
+        function initializeData() {
+            if (!localStorage.getItem('accountingData')) {
+                const defaultData = {
+                    users: [
+                        { id: 1, username: 'admin', password: 'admin', name: 'Nelson Pahla', role: 'Administrator', mfaEnabled: false, mfaSecret: null, backupCodes: [] },
+                        { id: 2, username: 'accountant', password: 'accountant', name: 'Sarah Johnson', role: 'Accountant', mfaEnabled: false, mfaSecret: null, backupCodes: [] },
+                        { id: 3, username: 'viewer', password: 'viewer', name: 'Mike Viewer', role: 'Viewer', mfaEnabled: false, mfaSecret: null, backupCodes: [] }
+                    ],
+                    accounts: [
+                        { id: 1, code: '1000', name: 'Cash', type: 'Asset', balance: 50000, description: 'Cash on hand and in bank' },
+                        { id: 2, code: '1100', name: 'Accounts Receivable', type: 'Asset', balance: 25000, description: 'Money owed by customers' },
+                        { id: 3, code: '1200', name: 'Inventory', type: 'Asset', balance: 35000, description: 'Products in stock' },
+                        { id: 4, code: '1500', name: 'Equipment', type: 'Asset', balance: 75000, description: 'Office equipment' },
+                        { id: 5, code: '2000', name: 'Accounts Payable', type: 'Liability', balance: 18000, description: 'Money owed to vendors' },
+                        { id: 6, code: '2100', name: 'Loans Payable', type: 'Liability', balance: 40000, description: 'Outstanding loans' },
+                        { id: 7, code: '3000', name: 'Owner Equity', type: 'Equity', balance: 100000, description: 'Owner investment' },
+                        { id: 8, code: '4000', name: 'Sales Revenue', type: 'Revenue', balance: 125000, description: 'Income from sales' },
+                        { id: 9, code: '5000', name: 'Cost of Goods Sold', type: 'Expense', balance: 45000, description: 'Direct costs' },
+                        { id: 10, code: '5100', name: 'Salaries Expense', type: 'Expense', balance: 60000, description: 'Employee salaries' },
+                        { id: 11, code: '5200', name: 'Rent Expense', type: 'Expense', balance: 24000, description: 'Office rent' },
+                        { id: 12, code: '5300', name: 'Utilities Expense', type: 'Expense', balance: 6000, description: 'Electricity, water, internet' }
+                    ],
+                    journalEntries: [
+                        { id: 1, date: '2024-01-15', description: 'Initial capital investment', debitAccount: 'Cash', creditAccount: 'Owner Equity', amount: 50000 },
+                        { id: 2, date: '2024-01-20', description: 'Purchase inventory', debitAccount: 'Inventory', creditAccount: 'Cash', amount: 20000 },
+                        { id: 3, date: '2024-02-01', description: 'Sales revenue', debitAccount: 'Cash', creditAccount: 'Sales Revenue', amount: 35000 }
+                    ],
+                    invoices: [
+                        { id: 1, number: 'INV-001', date: '2024-02-01', customer: 'ABC Corporation', description: 'Consulting services', amount: 15000, dueDate: '2024-03-01', status: 'Paid', scans: [] },
+                        { id: 2, number: 'INV-002', date: '2024-02-10', customer: 'XYZ Industries', description: 'Software development', amount: 25000, dueDate: '2024-03-10', status: 'Pending', scans: [] },
+                        { id: 3, number: 'INV-003', date: '2024-02-15', customer: 'Tech Solutions Ltd', description: 'System maintenance', amount: 8500, dueDate: '2024-03-15', status: 'Overdue', scans: [] }
+                    ],
+                    accountsReceivable: [
+                        { id: 1, customer: 'XYZ Industries', invoiceNumber: 'INV-002', amount: 25000, dueDate: '2024-03-10', status: 'Pending' },
+                        { id: 2, customer: 'Tech Solutions Ltd', invoiceNumber: 'INV-003', amount: 8500, dueDate: '2024-03-15', status: 'Overdue' }
+                    ],
+                    accountsPayable: [
+                        { id: 1, vendor: 'Office Supplies Co', invoiceNumber: 'BILL-445', amount: 3500, dueDate: '2024-02-28', status: 'Pending' },
+                        { id: 2, vendor: 'Tech Equipment Inc', invoiceNumber: 'BILL-892', amount: 12000, dueDate: '2024-03-05', status: 'Pending' },
+                        { id: 3, vendor: 'Cloud Services LLC', invoiceNumber: 'BILL-223', amount: 2500, dueDate: '2024-02-20', status: 'Overdue' }
+                    ],
+                    expenses: [
+                        { id: 1, date: '2024-02-01', category: 'Salaries', vendor: 'Payroll', description: 'Monthly salaries', amount: 25000, attachments: [] },
+                        { id: 2, date: '2024-02-05', category: 'Rent', vendor: 'Property Management', description: 'Office rent - February', amount: 8000, attachments: [] },
+                        { id: 3, date: '2024-02-10', category: 'Utilities', vendor: 'Electric Company', description: 'Electricity bill', amount: 1200, attachments: [] },
+                        { id: 4, date: '2024-02-12', category: 'Marketing', vendor: 'AdWords', description: 'Online advertising', amount: 3500, attachments: [] }
+                    ],
+                    contacts: [
+                        { id: 1, name: 'John Smith', email: 'contact@abccorp.com', phone: '555-0100', mobile: '555-0101', type: 'Customer', address: '123 Business St, New York, NY 10001', company: 'ABC Corporation', notes: 'Primary contact' },
+                        { id: 2, name: 'Sarah Johnson', email: 'billing@xyzind.com', phone: '555-0200', mobile: '555-0201', type: 'Customer', address: '456 Commerce Ave, Los Angeles, CA 90001', company: 'XYZ Industries', notes: 'Net 30 payment terms' },
+                        { id: 3, name: 'Mike Davis', email: 'sales@officesupplies.com', phone: '555-0300', mobile: '', type: 'Vendor', address: '789 Supply Rd, Chicago, IL 60601', company: 'Office Supplies Co', notes: 'Preferred vendor' }
+                    ],
+                    receipts: [],
+                    calendarEvents: [],
+                    googleCalendarConnected: false
+                };
+                localStorage.setItem('accountingData', JSON.stringify(defaultData));
+            }
+        }
+
+        function getData() { return JSON.parse(localStorage.getItem('accountingData')); }
+        function saveData(data) { localStorage.setItem('accountingData', JSON.stringify(data)); }
+
+        // MFA Functions
+        function generateSecret() { return new OTPAuth.Secret({ size: 20 }).base32; }
+        function generateBackupCodes() {
+            const codes = [];
+            for (let i = 0; i < 8; i++) {
+                codes.push(Math.random().toString(36).substring(2,6).toUpperCase() + '-' + Math.random().toString(36).substring(2,6).toUpperCase());
+            }
+            return codes;
+        }
+
+        function showMfaSetup(user) {
+            const secret = generateSecret();
+            const backupCodes = generateBackupCodes();
+            pendingMfaUser = { ...user, mfaSecret: secret, backupCodes };
+            currentTOTP = new OTPAuth.TOTP({ issuer: 'Physio-Book', label: user.username, algorithm: 'SHA1', digits: 6, period: 30, secret });
+            document.getElementById('qrcode').innerHTML = '';
+            new QRCode(document.getElementById('qrcode'), { text: currentTOTP.toString(), width: 200, height: 200 });
+            document.getElementById('secretKey').textContent = secret;
+            document.getElementById('loginContainer').style.display = 'none';
+            document.getElementById('mfaSetupContainer').style.display = 'flex';
+        }
+
+        document.getElementById('mfaSetupForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const code = document.getElementById('setupMfaCode').value;
+            const delta = currentTOTP.validate({ token: code, window: 1 });
+            if (delta !== null) {
+                const backupCodesList = document.getElementById('backupCodesList');
+                backupCodesList.innerHTML = pendingMfaUser.backupCodes.map(c => `<div class="backup-code">${c}</div>`).join('');
+                document.getElementById('backupCodesDisplay').style.display = 'block';
+                document.getElementById('completeMfaSetup').textContent = 'I Have Saved My Backup Codes';
+                document.getElementById('completeMfaSetup').onclick = function(e) { e.preventDefault(); completeMfaSetup(); };
+            } else { alert('Invalid code. Please try again.'); }
+        });
+
+        function completeMfaSetup() {
+            const data = getData();
+            const idx = data.users.findIndex(u => u.id === pendingMfaUser.id);
+            if (idx !== -1) {
+                data.users[idx].mfaEnabled = true;
+                data.users[idx].mfaSecret = pendingMfaUser.mfaSecret;
+                data.users[idx].backupCodes = pendingMfaUser.backupCodes;
+                saveData(data);
+                currentUser = data.users[idx];
+                document.getElementById('currentUserName').textContent = currentUser.name;
+                document.getElementById('currentUserRole').textContent = currentUser.role;
+                document.getElementById('mfaSetupContainer').style.display = 'none';
+                document.getElementById('appContainer').style.display = 'block';
+                buildNavigation();
+                showPage('dashboard');
+                alert('Two-factor authentication enabled!');
+            }
+        }
+
+        function showMfaVerification(user) {
+            pendingMfaUser = user;
+            currentTOTP = new OTPAuth.TOTP({ issuer: 'Physio-Book', label: user.username, algorithm: 'SHA1', digits: 6, period: 30, secret: user.mfaSecret });
+            document.getElementById('loginContainer').style.display = 'none';
+            document.getElementById('mfaVerifyContainer').style.display = 'flex';
+            document.getElementById('verifyMfaCode').focus();
+        }
+
+        document.getElementById('mfaVerifyForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const code = document.getElementById('verifyMfaCode').value;
+            const delta = currentTOTP.validate({ token: code, window: 1 });
+            if (delta !== null) { loginSuccess(pendingMfaUser); }
+            else { alert('Invalid authentication code.'); document.getElementById('verifyMfaCode').value = ''; }
+        });
+
+        function useBackupCode() { document.getElementById('mfaVerifyForm').style.display = 'none'; document.getElementById('backupCodeForm').style.display = 'block'; }
+        function useAuthenticatorApp() { document.getElementById('backupCodeForm').style.display = 'none'; document.getElementById('mfaVerifyForm').style.display = 'block'; }
+
+        function verifyBackupCode() {
+            const code = document.getElementById('backupCodeInput').value.toUpperCase();
+            const data = getData();
+            const idx = data.users.findIndex(u => u.id === pendingMfaUser.id);
+            if (idx !== -1) {
+                const user = data.users[idx];
+                const codeIdx = user.backupCodes.indexOf(code);
+                if (codeIdx !== -1) {
+                    user.backupCodes.splice(codeIdx, 1);
+                    saveData(data);
+                    loginSuccess(user);
+                    alert(`Backup code accepted. ${user.backupCodes.length} codes remaining.`);
+                } else { alert('Invalid backup code.'); document.getElementById('backupCodeInput').value = ''; }
+            }
+        }
+
+        function cancelMfaVerification() {
+            document.getElementById('mfaVerifyContainer').style.display = 'none';
+            document.getElementById('loginContainer').style.display = 'flex';
+            document.getElementById('verifyMfaCode').value = '';
+            document.getElementById('backupCodeInput').value = '';
+            document.getElementById('mfaVerifyForm').style.display = 'block';
+            document.getElementById('backupCodeForm').style.display = 'none';
+            pendingMfaUser = null;
+        }
+
+        function loginSuccess(user) {
+            currentUser = user;
+            document.getElementById('currentUserName').textContent = user.name;
+            document.getElementById('currentUserRole').textContent = user.role;
+            document.getElementById('mfaVerifyContainer').style.display = 'none';
+            document.getElementById('appContainer').style.display = 'block';
+            buildNavigation();
+            showPage(user.role === 'Viewer' ? 'chartOfAccounts' : 'dashboard');
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const data = getData();
+            const user = data.users.find(u => u.username === username && u.password === password);
+            if (user) {
+                if (user.mfaEnabled) { showMfaVerification(user); }
+                else if (confirm('Enable Two-Factor Authentication for enhanced security?')) { showMfaSetup(user); }
+                else { loginSuccess(user); }
+            } else { alert('Invalid credentials'); }
+        });
+
+        function logout() {
+            currentUser = null; pendingMfaUser = null; currentTOTP = null;
+            document.getElementById('appContainer').style.display = 'none';
+            document.getElementById('loginContainer').style.display = 'flex';
+            document.getElementById('loginForm').reset();
+        }
+
+        function buildNavigation() {
+            let navHTML = '';
+            if (currentUser.role === 'Viewer') {
+                navHTML = `
+                    <div class="nav-section"><div class="nav-section-title">General Ledger</div>
+                        <div class="nav-item active" onclick="showPage('chartOfAccounts')">Chart of Accounts</div>
+                        <div class="nav-item" onclick="showPage('journalEntries')">Journal Entries</div>
+                    </div>
+                    <div class="nav-section"><div class="nav-section-title">Reports</div>
+                        <div class="nav-item" onclick="showPage('profitLoss')">Profit & Loss</div>
+                        <div class="nav-item" onclick="showPage('balanceSheet')">Balance Sheet</div>
+                        <div class="nav-item" onclick="showPage('cashFlow')">Cash Flow Statement</div>
+                    </div>
+                    <div class="nav-section"><div class="nav-section-title">Account</div>
+                        <div class="nav-item" onclick="showPage('security')">Security Settings</div>
+                    </div>`;
+            } else {
+                navHTML = `
+                    <div class="nav-section"><div class="nav-section-title">Overview</div>
+                        <div class="nav-item active" onclick="showPage('dashboard')">Dashboard</div>
+                    </div>
+                    <div class="nav-section"><div class="nav-section-title">General Ledger</div>
+                        <div class="nav-item" onclick="showPage('chartOfAccounts')">Chart of Accounts</div>
+                        <div class="nav-item" onclick="showPage('journalEntries')">Journal Entries</div>
+                    </div>
+                    <div class="nav-section"><div class="nav-section-title">Transactions</div>
+                        <div class="nav-item" onclick="showPage('invoices')">Invoices</div>
+                        <div class="nav-item" onclick="showPage('accountsReceivable')">Accounts Receivable</div>
+                        <div class="nav-item" onclick="showPage('accountsPayable')">Accounts Payable</div>
+                        <div class="nav-item" onclick="showPage('expenses')">Expense Tracking</div>
+                    </div>
+                    <div class="nav-section"><div class="nav-section-title">Reports</div>
+                        <div class="nav-item" onclick="showPage('profitLoss')">Profit & Loss</div>
+                        <div class="nav-item" onclick="showPage('balanceSheet')">Balance Sheet</div>
+                        <div class="nav-item" onclick="showPage('cashFlow')">Cash Flow Statement</div>
+                    </div>
+                    <div class="nav-section"><div class="nav-section-title">Planning</div>
+                        <div class="nav-item" onclick="showPage('calendar')">Calendar</div>
+                    </div>
+                    <div class="nav-section"><div class="nav-section-title">Documents</div>
+                        <div class="nav-item" onclick="showPage('receipts')">Receipts</div>
+                    </div>
+                    <div class="nav-section"><div class="nav-section-title">Administration</div>
+                        <div class="nav-item" onclick="showPage('contacts')">Contacts</div>
+                        ${currentUser.role === 'Administrator' ? '<div class="nav-item" onclick="showPage(\'users\')">User Management</div>' : ''}
+                        <div class="nav-item" onclick="showPage('security')">Security Settings</div>
+                    </div>`;
+            }
+            document.getElementById('sidebar').innerHTML = navHTML;
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            const menuToggle = document.getElementById('menuToggle');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+            menuToggle.classList.toggle('active');
+            if (window.innerWidth <= 1024) {
+                document.getElementById('mainContent').classList.toggle('sidebar-open');
+                document.body.classList.toggle('sidebar-open-mobile');
+            }
+        }
+
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.remove('active');
+            document.getElementById('sidebarOverlay').classList.remove('active');
+            document.getElementById('menuToggle').classList.remove('active');
+            document.getElementById('mainContent').classList.remove('sidebar-open');
+            document.body.classList.remove('sidebar-open-mobile');
+        }
+
+        function showPage(pageName) {
+            if (window.innerWidth <= 1024) closeSidebar();
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            if (event && event.target) event.target.classList.add('active');
+            switch(pageName) {
+                case 'dashboard': loadDashboard(); break;
+                case 'chartOfAccounts': loadChartOfAccounts(); break;
+                case 'journalEntries': loadJournalEntries(); break;
+                case 'invoices': loadInvoices(); break;
+                case 'accountsReceivable': loadAccountsReceivable(); break;
+                case 'accountsPayable': loadAccountsPayable(); break;
+                case 'expenses': loadExpenses(); break;
+                case 'profitLoss': loadProfitLoss(); break;
+                case 'balanceSheet': loadBalanceSheet(); break;
+                case 'cashFlow': loadCashFlow(); break;
+                case 'calendar': loadCalendar(); break;
+                case 'contacts': loadContacts(); break;
+                case 'receipts': loadReceipts(); break;
+                case 'users': loadUsers(); break;
+                case 'security': loadSecuritySettings(); break;
+            }
+        }
+
+        // Security Settings
+        function loadSecuritySettings() {
+            const content = document.getElementById('mainContent');
+            content.innerHTML = `
+                <div class="page-header">
+                    <h1 class="page-title">Security Settings</h1>
+                    <p class="page-subtitle">Manage your account security and authentication</p>
+                </div>
+                <div class="card">
+                    <h2 class="card-title">Account Information</h2>
+                    <table style="width:100%;">
+                        <tbody>
+                            <tr><td style="border:none;padding:0.75rem 0;"><strong>Name:</strong></td><td style="border:none;padding:0.75rem 0;">${currentUser.name}</td></tr>
+                            <tr><td style="border:none;padding:0.75rem 0;"><strong>Username:</strong></td><td style="border:none;padding:0.75rem 0;">${currentUser.username}</td></tr>
+                            <tr><td style="border:none;padding:0.75rem 0;"><strong>Role:</strong></td><td style="border:none;padding:0.75rem 0;"><span class="badge badge-${currentUser.role==='Administrator'?'danger':currentUser.role==='Accountant'?'warning':'info'}">${currentUser.role}</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card">
+                    <h2 class="card-title">Two-Factor Authentication</h2>
+                    ${currentUser.mfaEnabled ? `
+                        <div class="alert alert-info"><strong>✓ Two-Factor Authentication is Enabled</strong></div>
+                        <p style="margin-bottom:1rem;">You have <strong>${currentUser.backupCodes.length}</strong> backup codes remaining.</p>
+                        ${currentUser.backupCodes.length <= 2 ? '<div class="alert alert-warning"><strong>⚠️ Low Backup Codes!</strong> Generate new ones soon.</div>' : ''}
+                        <button class="btn btn-danger" onclick="disableMfa()">Disable Two-Factor Authentication</button>
+                        <button class="btn btn-secondary" onclick="regenerateBackupCodes()" style="margin-left:1rem;">Generate New Backup Codes</button>
+                    ` : `
+                        <div class="alert alert-warning"><strong>⚠️ Two-Factor Authentication is Disabled</strong></div>
+                        <button class="btn btn-success" onclick="enableMfaFromSettings()">Enable Two-Factor Authentication</button>
+                    `}
+                </div>`;
+        }
+
+        function enableMfaFromSettings() { logout(); alert('Please log in again to set up two-factor authentication.'); }
+
+        function disableMfa() {
+            if (confirm('Are you sure you want to disable two-factor authentication?')) {
+                const data = getData();
+                const idx = data.users.findIndex(u => u.id === currentUser.id);
+                if (idx !== -1) {
+                    data.users[idx].mfaEnabled = false; data.users[idx].mfaSecret = null; data.users[idx].backupCodes = [];
+                    saveData(data); currentUser = data.users[idx]; loadSecuritySettings();
+                    alert('Two-factor authentication disabled.');
+                }
+            }
+        }
+
+        function regenerateBackupCodes() {
+            if (confirm('This will replace all existing backup codes. Continue?')) {
+                const data = getData();
+                const idx = data.users.findIndex(u => u.id === currentUser.id);
+                if (idx !== -1) {
+                    const newCodes = generateBackupCodes();
+                    data.users[idx].backupCodes = newCodes; saveData(data); currentUser = data.users[idx];
+                    const codesHtml = newCodes.map(c => `<div class="backup-code">${c}</div>`).join('');
+                    document.body.insertAdjacentHTML('beforeend', `
+                        <div class="modal" style="display:flex;" id="backupCodesModal">
+                            <div class="modal-content">
+                                <div class="modal-header"><h2 class="modal-title">New Backup Codes</h2></div>
+                                <div class="alert alert-warning"><strong>⚠️ Save these codes now!</strong></div>
+                                <div class="backup-codes"><div class="backup-codes-title">Your New Backup Codes:</div>
+                                <div class="backup-codes-grid">${codesHtml}</div></div>
+                                <button class="btn btn-primary" onclick="closeBackupCodesModal()">I Have Saved My Codes</button>
+                            </div>
+                        </div>`);
+                }
+            }
+        }
+        function closeBackupCodesModal() { const m = document.getElementById('backupCodesModal'); if (m) m.remove(); loadSecuritySettings(); }
+
+        // Dashboard
+        function loadDashboard() {
+            const data = getData();
+            const content = document.getElementById('mainContent');
+            const totalRevenue = data.accounts.find(a => a.name === 'Sales Revenue')?.balance || 0;
+            const totalExpenses = data.accounts.filter(a => a.type === 'Expense').reduce((s,a) => s+a.balance, 0);
+            const netIncome = totalRevenue - totalExpenses;
+            const totalAR = data.accountsReceivable.reduce((s,a) => s+a.amount, 0);
+            const totalDocs = data.invoices.reduce((s,inv) => s+(inv.scans?inv.scans.length:0), 0);
+            const invoicesWithDocs = data.invoices.filter(inv => inv.scans && inv.scans.length > 0).length;
+            content.innerHTML = `
+                <div class="page-header">
+                    <h1 class="page-title">Dashboard</h1>
+                    <p class="page-subtitle">Financial overview and key metrics</p>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-label">Total Revenue</div><div class="stat-value">$${totalRevenue.toLocaleString()}</div><div class="stat-change positive">↑ 12.5% from last month</div></div>
+                    <div class="stat-card"><div class="stat-label">Net Income</div><div class="stat-value">$${netIncome.toLocaleString()}</div><div class="stat-change ${netIncome>=0?'positive':'negative'}">${netIncome>=0?'↑':'↓'} ${Math.abs((netIncome/totalRevenue*100).toFixed(1))}% margin</div></div>
+                    <div class="stat-card"><div class="stat-label">Accounts Receivable</div><div class="stat-value">$${totalAR.toLocaleString()}</div><div class="stat-change">${data.accountsReceivable.length} outstanding</div></div>
+                    <div class="stat-card"><div class="stat-label">Stored Documents</div><div class="stat-value">${totalDocs}</div><div class="stat-change">${invoicesWithDocs} invoices with attachments</div></div>
+                </div>
+                <div class="card">
+                    <h2 class="card-title">Recent Invoices</h2>
+                    <div class="table-container">
+                        <table>
+                            <thead><tr><th>Invoice #</th><th>Customer</th><th>Date</th><th>Amount</th><th>Status</th></tr></thead>
+                            <tbody>${data.invoices.slice(0,5).map(inv => `
+                                <tr><td>${inv.number}</td><td>${inv.customer}</td><td>${inv.date}</td>
+                                <td class="amount">$${inv.amount.toLocaleString()}</td>
+                                <td><span class="badge badge-${inv.status==='Paid'?'success':inv.status==='Pending'?'warning':'danger'}">${inv.status}</span></td></tr>`).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card">
+                    <h2 class="card-title">Recent Expenses</h2>
+                    <div class="table-container">
+                        <table>
+                            <thead><tr><th>Date</th><th>Category</th><th>Vendor</th><th>Description</th><th>Amount</th></tr></thead>
+                            <tbody>${data.expenses.slice(0,5).map(exp => `
+                                <tr><td>${exp.date}</td><td>${exp.category}</td><td>${exp.vendor}</td><td>${exp.description}</td>
+                                <td class="amount">$${exp.amount.toLocaleString()}</td></tr>`).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>`;
+        }
+
+        // Chart of Accounts
+        function loadChartOfAccounts() {
+            const data = getData();
+            const content = document.getElementById('mainContent');
+            const types = ['Asset','Liability','Equity','Revenue','Expense'];
+            content.innerHTML = `
+                <div class="page-header"><h1 class="page-title">Chart of Accounts</h1><p class="page-subtitle">Manage your account structure</p></div>
+                ${currentUser.role !== 'Viewer' ? '<button class="btn btn-success" onclick="openAccountModal()">+ Add Account</button>' : ''}
+                ${types.map(type => {
+                    const accs = data.accounts.filter(a => a.type === type);
+                    return `<div class="card"><h2 class="card-title">${type} Accounts</h2>
+                        <div class="table-container"><table>
+                            <thead><tr><th>Code</th><th>Account Name</th><th>Description</th><th>Balance</th></tr></thead>
+                            <tbody>${accs.map(acc => `<tr><td>${acc.code}</td><td><strong>${acc.name}</strong></td><td>${acc.description}</td><td class="amount">$${acc.balance.toLocaleString()}</td></tr>`).join('')}</tbody>
+                        </table></div></div>`;
+                }).join('')}`;
+        }
+
+        function openAccountModal() { document.getElementById('accountModal').style.display = 'flex'; document.getElementById('accountForm').reset(); }
+        document.getElementById('accountForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const data = getData();
+            data.accounts.push({ id: data.accounts.length+1, code: document.getElementById('accountCode').value, name: document.getElementById('accountName').value, type: document.getElementById('accountType').value, balance: 0, description: document.getElementById('accountDescription').value });
+            saveData(data); closeModal('accountModal'); loadChartOfAccounts();
+        });
+
+        // Journal Entries
+        function loadJournalEntries() {
+            const data = getData();
+            const content = document.getElementById('mainContent');
+            content.innerHTML = `
+                <div class="page-header"><h1 class="page-title">Journal Entries</h1><p class="page-subtitle">Record and track all accounting transactions</p></div>
+                ${currentUser.role !== 'Viewer' ? '<button class="btn btn-success" onclick="openJournalModal()">+ New Entry</button>' : ''}
+                <div class="card"><h2 class="card-title">Recent Journal Entries</h2>
+                    <div class="table-container"><table>
+                        <thead><tr><th>Date</th><th>Description</th><th>Debit Account</th><th>Credit Account</th><th>Amount</th></tr></thead>
+                        <tbody>${data.journalEntries.map(e => `<tr><td>${e.date}</td><td>${e.description}</td><td>${e.debitAccount}</td><td>${e.creditAccount}</td><td class="amount">$${e.amount.toLocaleString()}</td></tr>`).join('')}</tbody>
+                    </table></div></div>`;
+        }
+
+        function openJournalModal() {
+            const data = getData();
+            document.getElementById('journalModal').style.display = 'flex';
+            const opts = data.accounts.map(a => `<option value="${a.name}">${a.code} - ${a.name}</option>`).join('');
+            document.getElementById('debitAccount').innerHTML = opts;
+            document.getElementById('creditAccount').innerHTML = opts;
+            document.getElementById('journalDate').valueAsDate = new Date();
+        }
+        document.getElementById('journalForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const data = getData();
+            data.journalEntries.push({ id: data.journalEntries.length+1, date: document.getElementById('journalDate').value, description: document.getElementById('journalDescription').value, debitAccount: document.getElementById('debitAccount').value, creditAccount: document.getElementById('creditAccount').value, amount: parseFloat(document.getElementById('journalAmount').value) });
+            saveData(data); closeModal('journalModal'); loadJournalEntries();
+        });
+
+        // ============================================================
+        // INVOICES - with full Edit, Delete, and PDF/Image attachment
+        // ============================================================
+        let currentInvoiceScans = [];
+
+        function loadInvoices() {
+            const data = getData();
+            const content = document.getElementById('mainContent');
+            const canEdit = currentUser.role === 'Administrator' || currentUser.role === 'Accountant';
+            content.innerHTML = `
+                <div class="page-header">
+                    <h1 class="page-title">Invoices</h1>
+                    <p class="page-subtitle">Create, edit, and manage customer invoices with document attachments</p>
+                </div>
+                ${canEdit ? '<button class="btn btn-success" onclick="openInvoiceModal()">+ Create Invoice</button>' : ''}
+                <div class="card" style="margin-top: 1.5rem;">
+                    <h2 class="card-title">All Invoices</h2>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Invoice #</th><th>Date</th><th>Customer</th><th>Description</th>
+                                    <th>Amount</th><th>Due Date</th><th>Status</th><th>Documents</th>
+                                    ${canEdit ? '<th>Actions</th>' : ''}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.invoices.length === 0 ? `<tr><td colspan="${canEdit?9:8}" style="text-align:center;padding:2rem;color:var(--text-secondary);">No invoices yet.</td></tr>` :
+                                data.invoices.map(inv => `
+                                    <tr>
+                                        <td><strong>${inv.number}</strong></td>
+                                        <td>${inv.date}</td>
+                                        <td>${inv.customer}</td>
+                                        <td>${inv.description}</td>
+                                        <td class="amount">$${inv.amount.toLocaleString()}</td>
+                                        <td>${inv.dueDate}</td>
+                                        <td><span class="badge badge-${inv.status==='Paid'?'success':inv.status==='Pending'?'warning':'danger'}">${inv.status}</span></td>
+                                        <td>
+                                            ${inv.scans && inv.scans.length > 0 ?
+                                                `<button class="btn btn-sm btn-secondary" onclick="viewInvoiceScans(${inv.id})">📄 View (${inv.scans.length})</button>` :
+                                                '<span style="color:var(--text-secondary);font-size:0.85rem;">No docs</span>'}
+                                        </td>
+                                        ${canEdit ? `
+                                        <td style="white-space:nowrap;">
+                                            <button class="btn btn-sm btn-secondary" onclick="editInvoice(${inv.id})">✏️ Edit</button>
+                                            <button class="btn btn-sm btn-danger" onclick="deleteInvoice(${inv.id})" style="margin-left:0.25rem;">🗑 Delete</button>
+                                        </td>` : ''}
+                                    </tr>`).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>`;
+        }
+
+        function openInvoiceModal() {
+            const data = getData();
+            document.getElementById('invoiceModal').style.display = 'flex';
+            document.getElementById('invoiceForm').reset();
+            document.getElementById('editInvoiceId').value = '';
+            document.getElementById('invoiceModalTitle').textContent = 'Create Invoice';
+            document.getElementById('invoiceSubmitBtn').textContent = 'Create Invoice';
+            document.getElementById('invoiceStatusGroup').style.display = 'none';
+            document.getElementById('invoiceNumber').value = `INV-${String(data.invoices.length + 1).padStart(3, '0')}`;
+            document.getElementById('invoiceDate').valueAsDate = new Date();
+            currentInvoiceScans = [];
+            displayScanPreviews();
+        }
+
+        function editInvoice(invoiceId) {
+            const data = getData();
+            const invoice = data.invoices.find(inv => inv.id === invoiceId);
+            if (!invoice) return;
+            document.getElementById('invoiceModal').style.display = 'flex';
+            document.getElementById('invoiceModalTitle').textContent = 'Edit Invoice';
+            document.getElementById('invoiceSubmitBtn').textContent = 'Save Changes';
+            document.getElementById('editInvoiceId').value = invoice.id;
+            document.getElementById('invoiceNumber').value = invoice.number;
+            document.getElementById('invoiceDate').value = invoice.date;
+            document.getElementById('customerName').value = invoice.customer;
+            document.getElementById('invoiceDescription').value = invoice.description;
+            document.getElementById('invoiceAmount').value = invoice.amount;
+            document.getElementById('invoiceDueDate').value = invoice.dueDate;
+            // Show & populate status field for editing
+            document.getElementById('invoiceStatusGroup').style.display = 'block';
+            document.getElementById('invoiceStatus').value = invoice.status;
+            // Load existing scans
+            currentInvoiceScans = invoice.scans ? [...invoice.scans] : [];
+            displayScanPreviews();
+        }
+
+        function deleteInvoice(invoiceId) {
+            const data = getData();
+            const invoice = data.invoices.find(inv => inv.id === invoiceId);
+            if (!invoice) return;
+            if (confirm(`Delete invoice ${invoice.number} (${invoice.customer} — $${invoice.amount.toLocaleString()})?\n\nThis cannot be undone.`)) {
+                data.invoices = data.invoices.filter(inv => inv.id !== invoiceId);
+                data.accountsReceivable = data.accountsReceivable.filter(ar => ar.invoiceNumber !== invoice.number);
+                saveData(data);
+                loadInvoices();
+                alert(`✓ Invoice ${invoice.number} deleted.`);
+            }
+        }
+
+        document.getElementById('invoiceForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const data = getData();
+            const invoiceId = document.getElementById('editInvoiceId').value;
+            const invoiceData = {
+                number: document.getElementById('invoiceNumber').value,
+                date: document.getElementById('invoiceDate').value,
+                customer: document.getElementById('customerName').value,
+                description: document.getElementById('invoiceDescription').value,
+                amount: parseFloat(document.getElementById('invoiceAmount').value),
+                dueDate: document.getElementById('invoiceDueDate').value,
+                scans: [...currentInvoiceScans]
+            };
+            if (invoiceId) {
+                const idx = data.invoices.findIndex(inv => inv.id == invoiceId);
+                if (idx !== -1) {
+                    const oldNumber = data.invoices[idx].number;
+                    const newStatus = document.getElementById('invoiceStatus').value || data.invoices[idx].status;
+                    data.invoices[idx] = { id: parseInt(invoiceId), status: newStatus, ...invoiceData };
+                    // Sync accounts receivable
+                    const arIdx = data.accountsReceivable.findIndex(ar => ar.invoiceNumber === oldNumber);
+                    if (arIdx !== -1) {
+                        data.accountsReceivable[arIdx] = { ...data.accountsReceivable[arIdx], invoiceNumber: invoiceData.number, customer: invoiceData.customer, amount: invoiceData.amount, dueDate: invoiceData.dueDate };
+                    }
+                }
+                saveData(data); closeModal('invoiceModal'); currentInvoiceScans = [];
+                alert(`✓ Invoice ${invoiceData.number} updated successfully!`);
+            } else {
+                const newInvoice = { id: data.invoices.length > 0 ? Math.max(...data.invoices.map(i=>i.id))+1 : 1, status: 'Pending', ...invoiceData };
+                data.invoices.push(newInvoice);
+                data.accountsReceivable.push({ id: data.accountsReceivable.length+1, customer: newInvoice.customer, invoiceNumber: newInvoice.number, amount: newInvoice.amount, dueDate: newInvoice.dueDate, status: 'Pending' });
+                saveData(data); closeModal('invoiceModal'); currentInvoiceScans = [];
+                alert(newInvoice.scans.length > 0 ? `✓ Invoice created with ${newInvoice.scans.length} document(s) attached!` : '✓ Invoice created successfully!');
+            }
+            loadInvoices();
+        });
+
+        // ---- File type helpers ----
+        const VALID_FILE_TYPES = [
+            'image/jpeg','image/jpg','image/png','image/gif',
+            'application/pdf',
+            'application/msword',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'application/vnd.ms-excel',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'application/vnd.ms-powerpoint',
+            'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+        ];
+        const WORD_TYPES = ['application/msword','application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+        const EXCEL_TYPES = ['application/vnd.ms-excel','application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
+        const PPT_TYPES = ['application/vnd.ms-powerpoint','application/vnd.openxmlformats-officedocument.presentationml.presentation'];
+
+        function getFileClass(type) {
+            if (type === 'application/pdf') return 'pdf';
+            if (WORD_TYPES.includes(type)) return 'word';
+            if (EXCEL_TYPES.includes(type)) return 'excel';
+            if (PPT_TYPES.includes(type)) return 'ppt';
+            return ''; // image
+        }
+        function getFileIcon(type) {
+            if (type === 'application/pdf') return '📄';
+            if (WORD_TYPES.includes(type)) return '📝';
+            if (EXCEL_TYPES.includes(type)) return '📊';
+            if (PPT_TYPES.includes(type)) return '📋';
+            return null; // images show thumbnail
+        }
+        function isImageType(type) { return type.startsWith('image/'); }
+        function getFileTypeFriendly(type) {
+            if (type === 'application/pdf') return 'PDF';
+            if (type === 'application/msword') return 'Word (.doc)';
+            if (type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') return 'Word (.docx)';
+            if (type === 'application/vnd.ms-excel') return 'Excel (.xls)';
+            if (type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') return 'Excel (.xlsx)';
+            if (type === 'application/vnd.ms-powerpoint') return 'PowerPoint (.ppt)';
+            if (type === 'application/vnd.openxmlformats-officedocument.presentationml.presentation') return 'PowerPoint (.pptx)';
+            return 'Image';
+        }
+        // ---- End file type helpers ----
+
+        // Document upload/preview for invoices
+        function handleScanUpload(event) {
+            const files = event.target.files;
+            if (!files.length) return;
+            let totalSize = currentInvoiceScans.reduce((s,sc) => s+sc.size, 0);
+            Array.from(files).forEach(file => {
+                if (!VALID_FILE_TYPES.includes(file.type)) { alert(`File "${file.name}" not supported.\n\nSupported: JPG, PNG, GIF, PDF, Word (.doc/.docx), Excel (.xls/.xlsx), PowerPoint (.ppt/.pptx)`); return; }
+                if (file.size > 5*1024*1024) { alert(`File "${file.name}" exceeds 5MB limit.`); return; }
+                if (totalSize + file.size > 10*1024*1024) { alert('Total attachments exceed 10MB limit.'); return; }
+                totalSize += file.size;
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    currentInvoiceScans.push({ id: Date.now()+Math.random(), name: file.name, type: file.type, size: file.size, data: e.target.result, uploadDate: new Date().toISOString() });
+                    displayScanPreviews();
+                };
+                reader.readAsDataURL(file);
+            });
+            event.target.value = '';
+        }
+
+        function captureWithCamera() { const ci = document.getElementById('invoiceCameraInput'); ci.onchange = handleScanUpload; ci.click(); }
+
+        function displayScanPreviews() {
+            const area = document.getElementById('scanPreviewArea');
+            if (!area) return;
+            area.innerHTML = currentInvoiceScans.map(scan => {
+                const fileClass = getFileClass(scan.type);
+                const icon = getFileIcon(scan.type);
+                return `<div class="scan-preview-item ${fileClass}">
+                    ${isImageType(scan.type) ? `<img src="${scan.data}" alt="${scan.name}">` : `<div style="font-size:0.8rem;color:var(--text-secondary);margin-top:0.25rem;">${getFileTypeFriendly(scan.type)}</div>`}
+                    <div class="scan-preview-name">${scan.name}</div>
+                    <button type="button" class="scan-remove-btn" onclick="removeScan('${scan.id}')" title="Remove">×</button>
+                </div>`;
+            }).join('');
+        }
+
+        function removeScan(scanId) { currentInvoiceScans = currentInvoiceScans.filter(s => s.id != scanId); displayScanPreviews(); }
+
+        function viewInvoiceScans(invoiceId) {
+            const data = getData();
+            const invoice = data.invoices.find(inv => inv.id === invoiceId);
+            if (!invoice) return;
+            document.getElementById('viewScansTitle').textContent = `Documents — Invoice ${invoice.number}`;
+            const content = document.getElementById('scansViewerContent');
+            if (!invoice.scans || !invoice.scans.length) {
+                content.innerHTML = '<div class="no-scans-message">No documents attached to this invoice</div>';
+            } else {
+                content.innerHTML = `<div style="margin-bottom:1rem;color:var(--text-secondary);">${invoice.scans.length} document(s) attached</div>
+                    <div class="scans-viewer-grid">${invoice.scans.map(scan => {
+                        const fileClass = getFileClass(scan.type);
+                        return `<div class="scan-viewer-item ${fileClass}" onclick="${isImageType(scan.type)?`viewFullImage('${scan.data}','${scan.name}')`:``}">
+                            ${isImageType(scan.type) ? `<img src="${scan.data}" alt="${scan.name}">` : `<div style="padding:1rem;text-align:center;font-size:0.9rem;font-weight:600;">${getFileTypeFriendly(scan.type)}<br><span style="font-size:0.8rem;font-weight:normal;color:var(--text-secondary);">${scan.name}</span></div>`}
+                            <div class="scan-viewer-actions">
+                                <span class="scan-viewer-filename">${scan.name}</span>
+                                <button class="scan-download-btn" onclick="downloadScan('${scan.data}','${scan.name}',event)">⬇ Download</button>
+                            </div>
+                        </div>`;
+                    }).join('')}</div>`;
+            }
+            document.getElementById('viewScansModal').style.display = 'flex';
+        }
+
+        // Accounts Receivable
+        function loadAccountsReceivable() {
+            const data = getData();
+            const content = document.getElementById('mainContent');
+            const totalAR = data.accountsReceivable.reduce((s,a) => s+a.amount, 0);
+            const overdueAR = data.accountsReceivable.filter(a => a.status === 'Overdue');
+            content.innerHTML = `
+                <div class="page-header"><h1 class="page-title">Accounts Receivable</h1><p class="page-subtitle">Track outstanding customer payments</p></div>
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-label">Total Outstanding</div><div class="stat-value">$${totalAR.toLocaleString()}</div></div>
+                    <div class="stat-card"><div class="stat-label">Overdue</div><div class="stat-value">${overdueAR.length}</div><div class="stat-change negative">$${overdueAR.reduce((s,a)=>s+a.amount,0).toLocaleString()} overdue</div></div>
+                </div>
+                <div class="card"><h2 class="card-title">Outstanding Receivables</h2>
+                    <div class="table-container"><table>
+                        <thead><tr><th>Customer</th><th>Invoice #</th><th>Amount</th><th>Due Date</th><th>Status</th></tr></thead>
+                        <tbody>${data.accountsReceivable.map(ar => `<tr><td>${ar.customer}</td><td>${ar.invoiceNumber}</td><td class="amount">$${ar.amount.toLocaleString()}</td><td>${ar.dueDate}</td><td><span class="badge badge-${ar.status==='Pending'?'warning':'danger'}">${ar.status}</span></td></tr>`).join('')}</tbody>
+                    </table></div></div>`;
+        }
+
+        // Accounts Payable
+        function loadAccountsPayable() {
+            const data = getData();
+            const content = document.getElementById('mainContent');
+            const totalAP = data.accountsPayable.reduce((s,a) => s+a.amount, 0);
+            const overdueAP = data.accountsPayable.filter(a => a.status === 'Overdue');
+            content.innerHTML = `
+                <div class="page-header"><h1 class="page-title">Accounts Payable</h1><p class="page-subtitle">Manage vendor bills and payments</p></div>
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-label">Total Outstanding</div><div class="stat-value">$${totalAP.toLocaleString()}</div></div>
+                    <div class="stat-card"><div class="stat-label">Overdue</div><div class="stat-value">${overdueAP.length}</div><div class="stat-change negative">$${overdueAP.reduce((s,a)=>s+a.amount,0).toLocaleString()} overdue</div></div>
+                </div>
+                <div class="card"><h2 class="card-title">Outstanding Payables</h2>
+                    <div class="table-container"><table>
+                        <thead><tr><th>Vendor</th><th>Invoice #</th><th>Amount</th><th>Due Date</th><th>Status</th></tr></thead>
+                        <tbody>${data.accountsPayable.map(ap => `<tr><td>${ap.vendor}</td><td>${ap.invoiceNumber}</td><td class="amount">$${ap.amount.toLocaleString()}</td><td>${ap.dueDate}</td><td><span class="badge badge-${ap.status==='Pending'?'warning':'danger'}">${ap.status}</span></td></tr>`).join('')}</tbody>
+                    </table></div></div>`;
+        }
+
+        // ============================================================
+        // EXPENSES - with Edit, Delete, and PDF/Image attachment
+        // ============================================================
+        let currentExpenseAttachments = [];
+
+        function loadExpenses() {
+            const data = getData();
+            const content = document.getElementById('mainContent');
+            const canEdit = currentUser.role === 'Administrator' || currentUser.role === 'Accountant';
+            const totalExpenses = data.expenses.reduce((s,e) => s+e.amount, 0);
+            const expensesWithAtt = data.expenses.filter(e => e.attachments && e.attachments.length > 0).length;
+            content.innerHTML = `
+                <div class="page-header"><h1 class="page-title">Expense Tracking</h1><p class="page-subtitle">Monitor and categorize business expenses with document attachments</p></div>
+                ${canEdit ? '<button class="btn btn-success" onclick="openExpenseModal()">+ Record Expense</button>' : ''}
+                <div class="stats-grid" style="margin-top:1.5rem;">
+                    <div class="stat-card"><div class="stat-label">Total Expenses (MTD)</div><div class="stat-value">$${totalExpenses.toLocaleString()}</div></div>
+                    <div class="stat-card"><div class="stat-label">Number of Expenses</div><div class="stat-value">${data.expenses.length}</div></div>
+                    <div class="stat-card"><div class="stat-label">With Attachments</div><div class="stat-value">${expensesWithAtt}</div><div class="stat-change">${data.expenses.length>0?Math.round(expensesWithAtt/data.expenses.length*100):0}% documented</div></div>
+                </div>
+                <div class="card"><h2 class="card-title">All Expenses</h2>
+                    <div class="table-container"><table>
+                        <thead><tr><th>Date</th><th>Category</th><th>Vendor</th><th>Description</th><th>Amount</th><th>Attachments</th>${canEdit?'<th>Actions</th>':''}</tr></thead>
+                        <tbody>${data.expenses.length === 0 ?
+                            `<tr><td colspan="${canEdit?7:6}" style="text-align:center;padding:2rem;color:var(--text-secondary);">No expenses yet. ${canEdit?'Add your first expense above.':''}</td></tr>` :
+                            data.expenses.map(exp => `<tr>
+                                <td>${exp.date}</td><td><span class="badge badge-info">${exp.category}</span></td>
+                                <td>${exp.vendor}</td><td>${exp.description}</td>
+                                <td class="amount">$${exp.amount.toLocaleString()}</td>
+                                <td>${exp.attachments && exp.attachments.length>0 ?
+                                    `<button class="btn btn-sm btn-secondary" onclick="viewExpenseAttachments(${exp.id})">📎 View (${exp.attachments.length})</button>` :
+                                    '<span style="color:var(--text-secondary);font-size:0.85rem;">No attachments</span>'}
+                                </td>
+                                ${canEdit?`<td style="white-space:nowrap;">
+                                    <button class="btn btn-sm btn-secondary" onclick="editExpense(${exp.id})">✏️ Edit</button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteExpense(${exp.id})" style="margin-left:0.25rem;">🗑 Delete</button>
+                                </td>`:''}
+                            </tr>`).join('')}
+                        </tbody>
+                    </table></div></div>`;
+        }
+
+        function openExpenseModal() {
+            document.getElementById('expenseModal').style.display = 'flex';
+            document.getElementById('expenseForm').reset();
+            document.getElementById('editExpenseId').value = '';
+            document.getElementById('expenseModalTitle').textContent = 'Record Expense';
+            document.getElementById('expenseSubmitBtn').textContent = 'Record Expense';
+            document.getElementById('expenseDate').valueAsDate = new Date();
+            currentExpenseAttachments = [];
+            displayExpenseAttachmentPreviews();
+        }
+
+        function editExpense(expenseId) {
+            const data = getData();
+            const expense = data.expenses.find(e => e.id === expenseId);
+            if (!expense) return;
+            document.getElementById('expenseModal').style.display = 'flex';
+            document.getElementById('expenseModalTitle').textContent = 'Edit Expense';
+            document.getElementById('expenseSubmitBtn').textContent = 'Save Changes';
+            document.getElementById('editExpenseId').value = expense.id;
+            document.getElementById('expenseDate').value = expense.date;
+            document.getElementById('expenseCategory').value = expense.category;
+            document.getElementById('expenseVendor').value = expense.vendor;
+            document.getElementById('expenseDescription').value = expense.description;
+            document.getElementById('expenseAmount').value = expense.amount;
+            currentExpenseAttachments = expense.attachments ? [...expense.attachments] : [];
+            displayExpenseAttachmentPreviews();
+        }
+
+        function deleteExpense(expenseId) {
+            const data = getData();
+            const expense = data.expenses.find(e => e.id === expenseId);
+            if (!expense) return;
+            if (confirm(`Delete expense: ${expense.description} ($${expense.amount.toLocaleString()})?\n\nThis cannot be undone.`)) {
+                data.expenses = data.expenses.filter(e => e.id !== expenseId);
+                saveData(data); loadExpenses();
+                alert('✓ Expense deleted successfully.');
+            }
+        }
+
+        function handleExpenseAttachmentUpload(event) {
+            const files = event.target.files;
+            if (!files.length) return;
+            let totalSize = currentExpenseAttachments.reduce((s,a) => s+a.size, 0);
+            Array.from(files).forEach(file => {
+                if (!VALID_FILE_TYPES.includes(file.type)) { alert(`"${file.name}" not supported.\n\nSupported: JPG, PNG, GIF, PDF, Word (.doc/.docx), Excel (.xls/.xlsx), PowerPoint (.ppt/.pptx)`); return; }
+                if (file.size > 5*1024*1024) { alert(`"${file.name}" exceeds 5MB limit.`); return; }
+                if (totalSize + file.size > 10*1024*1024) { alert('Total attachments exceed 10MB.'); return; }
+                totalSize += file.size;
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    currentExpenseAttachments.push({ id: Date.now()+Math.random(), name: file.name, type: file.type, size: file.size, data: e.target.result, uploadDate: new Date().toISOString() });
+                    displayExpenseAttachmentPreviews();
+                };
+                reader.readAsDataURL(file);
+            });
+            event.target.value = '';
+        }
+
+        function captureExpenseWithCamera() { const ci = document.getElementById('expenseCameraInput'); ci.onchange = handleExpenseAttachmentUpload; ci.click(); }
+
+        function displayExpenseAttachmentPreviews() {
+            const area = document.getElementById('expenseAttachmentPreviewArea');
+            if (!area) return;
+            area.innerHTML = currentExpenseAttachments.map(att => {
+                const fileClass = getFileClass(att.type);
+                return `<div class="scan-preview-item ${fileClass}">
+                    ${isImageType(att.type) ? `<img src="${att.data}" alt="${att.name}">` : `<div style="font-size:0.8rem;color:var(--text-secondary);margin-top:0.25rem;">${getFileTypeFriendly(att.type)}</div>`}
+                    <div class="scan-preview-name">${att.name}</div>
+                    <button type="button" class="scan-remove-btn" onclick="removeExpenseAttachment('${att.id}')" title="Remove">×</button>
+                </div>`;
+            }).join('');
+        }
+
+        function removeExpenseAttachment(id) { currentExpenseAttachments = currentExpenseAttachments.filter(a => a.id != id); displayExpenseAttachmentPreviews(); }
+
+        function viewExpenseAttachments(expenseId) {
+            const data = getData();
+            const expense = data.expenses.find(e => e.id === expenseId);
+            if (!expense) return;
+            document.getElementById('viewScansTitle').textContent = `Attachments — ${expense.vendor}`;
+            const content = document.getElementById('scansViewerContent');
+            if (!expense.attachments || !expense.attachments.length) {
+                content.innerHTML = '<div class="no-scans-message">No attachments</div>';
+            } else {
+                content.innerHTML = `<div style="margin-bottom:1rem;color:var(--text-secondary);">${expense.attachments.length} attachment(s)</div>
+                    <div class="scans-viewer-grid">${expense.attachments.map(att => {
+                        const fileClass = getFileClass(att.type);
+                        return `<div class="scan-viewer-item ${fileClass}" onclick="${isImageType(att.type)?`viewFullImage('${att.data}','${att.name}')`:``}">
+                            ${isImageType(att.type) ? `<img src="${att.data}" alt="${att.name}">` : `<div style="padding:1rem;text-align:center;font-size:0.9rem;font-weight:600;">${getFileTypeFriendly(att.type)}<br><span style="font-size:0.8rem;font-weight:normal;color:var(--text-secondary);">${att.name}</span></div>`}
+                            <div class="scan-viewer-actions">
+                                <span class="scan-viewer-filename">${att.name}</span>
+                                <button class="scan-download-btn" onclick="downloadScan('${att.data}','${att.name}',event)">⬇ Download</button>
+                            </div>
+                        </div>`;
+                    }).join('')}</div>`;
+            }
+            document.getElementById('viewScansModal').style.display = 'flex';
+        }
+
+        document.getElementById('expenseForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const data = getData();
+            const expenseId = document.getElementById('editExpenseId').value;
+            const expenseData = {
+                date: document.getElementById('expenseDate').value,
+                category: document.getElementById('expenseCategory').value,
+                vendor: document.getElementById('expenseVendor').value,
+                description: document.getElementById('expenseDescription').value,
+                amount: parseFloat(document.getElementById('expenseAmount').value),
+                attachments: [...currentExpenseAttachments]
+            };
+            if (expenseId) {
+                const idx = data.expenses.findIndex(e => e.id == expenseId);
+                if (idx !== -1) data.expenses[idx] = { id: parseInt(expenseId), ...expenseData };
+                saveData(data); closeModal('expenseModal'); currentExpenseAttachments = [];
+                alert('✓ Expense updated successfully!');
+            } else {
+                data.expenses.push({ id: data.expenses.length>0?Math.max(...data.expenses.map(e=>e.id))+1:1, ...expenseData });
+                saveData(data); closeModal('expenseModal'); currentExpenseAttachments = [];
+                alert(expenseData.attachments.length>0 ? `✓ Expense recorded with ${expenseData.attachments.length} attachment(s)!` : '✓ Expense recorded!');
+            }
+            loadExpenses();
+        });
+
+        // Receipts
+        let currentReceiptScans = [];
+        function loadReceipts() {
+            const data = getData();
+            const content = document.getElementById('mainContent');
+            const total = data.receipts.reduce((s,r) => s+r.amount, 0);
+            const withScans = data.receipts.filter(r => r.scans && r.scans.length>0).length;
+            content.innerHTML = `
+                <div class="page-header"><h1 class="page-title">Receipts</h1><p class="page-subtitle">Track and scan expense receipts</p></div>
+                ${currentUser.role !== 'Viewer' ? '<button class="btn btn-success" onclick="openReceiptModal()">+ Add Receipt</button>' : ''}
+                <div class="stats-grid" style="margin-top:1.5rem;">
+                    <div class="stat-card"><div class="stat-label">Total Receipts</div><div class="stat-value">${data.receipts.length}</div></div>
+                    <div class="stat-card"><div class="stat-label">Total Amount</div><div class="stat-value">$${total.toLocaleString()}</div></div>
+                    <div class="stat-card"><div class="stat-label">With Scans</div><div class="stat-value">${withScans}</div></div>
+                </div>
+                <div class="card"><h2 class="card-title">All Receipts</h2>
+                    <div class="table-container"><table>
+                        <thead><tr><th>Date</th><th>Vendor</th><th>Category</th><th>Description</th><th>Amount</th><th>Documents</th></tr></thead>
+                        <tbody>${data.receipts.length===0?'<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--text-secondary);">No receipts yet.</td></tr>':
+                            data.receipts.map(r => `<tr><td>${r.date}</td><td>${r.vendor}</td><td><span class="badge badge-info">${r.category}</span></td><td>${r.description}</td><td class="amount">$${r.amount.toLocaleString()}</td>
+                            <td>${r.scans&&r.scans.length>0?`<button class="btn btn-sm btn-secondary" onclick="viewReceiptScans(${r.id})">📄 View (${r.scans.length})</button>`:'<span style="color:var(--text-secondary);font-size:0.85rem;">No scans</span>'}</td></tr>`).join('')}
+                        </tbody>
+                    </table></div></div>`;
+        }
+        function openReceiptModal() {
+            document.getElementById('receiptModal').style.display = 'flex';
+            document.getElementById('receiptForm').reset();
+            document.getElementById('receiptDate').valueAsDate = new Date();
+            currentReceiptScans = []; displayReceiptScanPreviews();
+        }
+        function handleReceiptScanUpload(event) {
+            Array.from(event.target.files).forEach(file => {
+                if (!VALID_FILE_TYPES.includes(file.type)) { alert(`"${file.name}" not supported.\n\nSupported: JPG, PNG, GIF, PDF, Word (.doc/.docx), Excel (.xls/.xlsx), PowerPoint (.ppt/.pptx)`); return; }
+                if (file.size > 5*1024*1024) { alert(`"${file.name}" exceeds 5MB.`); return; }
+                const reader = new FileReader();
+                reader.onload = e => { currentReceiptScans.push({ id: Date.now()+Math.random(), name: file.name, type: file.type, size: file.size, data: e.target.result, uploadDate: new Date().toISOString() }); displayReceiptScanPreviews(); };
+                reader.readAsDataURL(file);
+            });
+            event.target.value = '';
+        }
+        function captureReceiptWithCamera() { const ci = document.getElementById('receiptCameraInput'); ci.onchange = handleReceiptScanUpload; ci.click(); }
+        function displayReceiptScanPreviews() {
+            const area = document.getElementById('receiptScanPreviewArea');
+            if (!area) return;
+            area.innerHTML = currentReceiptScans.map(s => {
+                const fileClass = getFileClass(s.type);
+                return `<div class="scan-preview-item ${fileClass}">
+                    ${isImageType(s.type) ? `<img src="${s.data}" alt="${s.name}">` : `<div style="font-size:0.8rem;color:var(--text-secondary);margin-top:0.25rem;">${getFileTypeFriendly(s.type)}</div>`}
+                    <div class="scan-preview-name">${s.name}</div>
+                    <button type="button" class="scan-remove-btn" onclick="removeReceiptScan('${s.id}')">×</button>
+                </div>`;
+            }).join('');
+        }
+        function removeReceiptScan(id) { currentReceiptScans = currentReceiptScans.filter(s => s.id != id); displayReceiptScanPreviews(); }
+        function viewReceiptScans(receiptId) {
+            const data = getData();
+            const receipt = data.receipts.find(r => r.id === receiptId);
+            if (!receipt) return;
+            document.getElementById('viewScansTitle').textContent = `Receipt — ${receipt.vendor}`;
+            const content = document.getElementById('scansViewerContent');
+            content.innerHTML = receipt.scans&&receipt.scans.length>0 ?
+                `<div class="scans-viewer-grid">${receipt.scans.map(s=>{const isPdf=s.type==='application/pdf';return`<div class="scan-viewer-item ${isPdf?'pdf':''}"><${!isPdf?`img src="${s.data}" alt="${s.name}"`:'div style="padding:1rem"'}>` + (!isPdf?'':s.name) + `</${!isPdf?'img':'div'}><div class="scan-viewer-actions"><span class="scan-viewer-filename">${s.name}</span><button class="scan-download-btn" onclick="downloadScan('${s.data}','${s.name}',event)">⬇ Download</button></div></div>`;}).join('')}</div>` :
+                '<div class="no-scans-message">No scans</div>';
+            document.getElementById('viewScansModal').style.display = 'flex';
+        }
+        document.getElementById('receiptForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const data = getData();
+            data.receipts.push({ id: data.receipts.length+1, date: document.getElementById('receiptDate').value, amount: parseFloat(document.getElementById('receiptAmount').value), vendor: document.getElementById('receiptVendor').value, category: document.getElementById('receiptCategory').value, description: document.getElementById('receiptDescription').value, scans: [...currentReceiptScans] });
+            saveData(data); closeModal('receiptModal'); currentReceiptScans = []; loadReceipts();
+        });
+
+        // Reports
+        function loadProfitLoss() {
+            const data = getData();
+            const content = document.getElementById('mainContent');
+            const revenues = data.accounts.filter(a => a.type==='Revenue');
+            const expenses = data.accounts.filter(a => a.type==='Expense');
+            const totalRev = revenues.reduce((s,a) => s+a.balance, 0);
+            const totalExp = expenses.reduce((s,a) => s+a.balance, 0);
+            const net = totalRev - totalExp;
+            content.innerHTML = `<div class="page-header"><h1 class="page-title">Profit & Loss Statement</h1></div>
+                <div class="card">
+                    <div class="report-header"><h1 class="report-title">Profit & Loss Statement</h1><p class="report-period">For the Year Ended December 31, 2024</p></div>
+                    <div class="report-section"><h3 style="margin-bottom:1rem;font-family:'Crimson Pro',serif;">Revenue</h3>
+                        <table class="report-table"><tbody>${revenues.map(a=>`<tr><td>${a.name}</td><td class="amount">$${a.balance.toLocaleString()}</td></tr>`).join('')}
+                        <tr class="report-total"><td><strong>Total Revenue</strong></td><td class="amount amount-positive"><strong>$${totalRev.toLocaleString()}</strong></td></tr></tbody></table></div>
+                    <div class="report-section"><h3 style="margin-bottom:1rem;font-family:'Crimson Pro',serif;">Expenses</h3>
+                        <table class="report-table"><tbody>${expenses.map(a=>`<tr><td>${a.name}</td><td class="amount">$${a.balance.toLocaleString()}</td></tr>`).join('')}
+                        <tr class="report-total"><td><strong>Total Expenses</strong></td><td class="amount amount-negative"><strong>$${totalExp.toLocaleString()}</strong></td></tr></tbody></table></div>
+                    <table class="report-table"><tbody><tr class="report-total" style="background:linear-gradient(135deg,var(--primary-dark),var(--primary-navy));color:white;">
+                        <td><strong style="font-size:1.2rem;">NET INCOME</strong></td><td class="amount"><strong style="font-size:1.2rem;">$${net.toLocaleString()}</strong></td></tr></tbody></table>
+                </div>`;
+        }
+
+        function loadBalanceSheet() {
+            const data = getData();
+            const content = document.getElementById('mainContent');
+            const assets = data.accounts.filter(a => a.type==='Asset');
+            const liabilities = data.accounts.filter(a => a.type==='Liability');
+            const equity = data.accounts.filter(a => a.type==='Equity');
+            const ta = assets.reduce((s,a)=>s+a.balance,0), tl = liabilities.reduce((s,a)=>s+a.balance,0), te = equity.reduce((s,a)=>s+a.balance,0);
+            content.innerHTML = `<div class="page-header"><h1 class="page-title">Balance Sheet</h1></div>
+                <div class="card">
+                    <div class="report-header"><h1 class="report-title">Balance Sheet</h1><p class="report-period">As of December 31, 2024</p></div>
+                    <div class="report-section"><h3 style="margin-bottom:1rem;font-family:'Crimson Pro',serif;">Assets</h3>
+                        <table class="report-table"><tbody>${assets.map(a=>`<tr><td>${a.name}</td><td class="amount">$${a.balance.toLocaleString()}</td></tr>`).join('')}
+                        <tr class="report-total"><td><strong>Total Assets</strong></td><td class="amount"><strong>$${ta.toLocaleString()}</strong></td></tr></tbody></table></div>
+                    <div class="report-section"><h3 style="margin-bottom:1rem;font-family:'Crimson Pro',serif;">Liabilities</h3>
+                        <table class="report-table"><tbody>${liabilities.map(a=>`<tr><td>${a.name}</td><td class="amount">$${a.balance.toLocaleString()}</td></tr>`).join('')}
+                        <tr class="report-total"><td><strong>Total Liabilities</strong></td><td class="amount"><strong>$${tl.toLocaleString()}</strong></td></tr></tbody></table></div>
+                    <div class="report-section"><h3 style="margin-bottom:1rem;font-family:'Crimson Pro',serif;">Equity</h3>
+                        <table class="report-table"><tbody>${equity.map(a=>`<tr><td>${a.name}</td><td class="amount">$${a.balance.toLocaleString()}</td></tr>`).join('')}
+                        <tr class="report-total"><td><strong>Total Equity</strong></td><td class="amount"><strong>$${te.toLocaleString()}</strong></td></tr></tbody></table></div>
+                    <table class="report-table"><tbody><tr class="report-total" style="background:linear-gradient(135deg,var(--primary-dark),var(--primary-navy));color:white;">
+                        <td><strong style="font-size:1.2rem;">TOTAL LIABILITIES & EQUITY</strong></td><td class="amount"><strong style="font-size:1.2rem;">$${(tl+te).toLocaleString()}</strong></td></tr></tbody></table>
+                </div>`;
+        }
+
+        function loadCashFlow() {
+            document.getElementById('mainContent').innerHTML = `<div class="card">
+                <div class="report-header"><h1 class="report-title">Cash Flow Statement</h1><p class="report-period">For the Year Ended December 31, 2024</p></div>
+                <div class="report-section"><h3 style="margin-bottom:1rem;font-family:'Crimson Pro',serif;">Operating Activities</h3>
+                    <table class="report-table"><tbody>
+                        <tr><td>Cash received from customers</td><td class="amount amount-positive">$125,000</td></tr>
+                        <tr><td>Cash paid to suppliers</td><td class="amount amount-negative">($85,000)</td></tr>
+                        <tr><td>Cash paid for operating expenses</td><td class="amount amount-negative">($30,000)</td></tr>
+                        <tr class="report-total"><td><strong>Net Cash from Operating Activities</strong></td><td class="amount amount-positive"><strong>$10,000</strong></td></tr>
+                    </tbody></table></div>
+                <div class="report-section"><h3 style="margin-bottom:1rem;font-family:'Crimson Pro',serif;">Investing Activities</h3>
+                    <table class="report-table"><tbody>
+                        <tr><td>Purchase of equipment</td><td class="amount amount-negative">($15,000)</td></tr>
+                        <tr class="report-total"><td><strong>Net Cash from Investing</strong></td><td class="amount amount-negative"><strong>($15,000)</strong></td></tr>
+                    </tbody></table></div>
+                <div class="report-section"><h3 style="margin-bottom:1rem;font-family:'Crimson Pro',serif;">Financing Activities</h3>
+                    <table class="report-table"><tbody>
+                        <tr><td>Owner contributions</td><td class="amount amount-positive">$50,000</td></tr>
+                        <tr><td>Loan repayments</td><td class="amount amount-negative">($5,000)</td></tr>
+                        <tr class="report-total"><td><strong>Net Cash from Financing</strong></td><td class="amount amount-positive"><strong>$45,000</strong></td></tr>
+                    </tbody></table></div>
+                <table class="report-table"><tbody>
+                    <tr class="report-total" style="background:linear-gradient(135deg,var(--primary-dark),var(--primary-navy));color:white;"><td><strong style="font-size:1.2rem;">NET INCREASE IN CASH</strong></td><td class="amount"><strong style="font-size:1.2rem;">$40,000</strong></td></tr>
+                    <tr><td>Cash at beginning of period</td><td class="amount">$10,000</td></tr>
+                    <tr class="report-total"><td><strong>Cash at End of Period</strong></td><td class="amount"><strong>$50,000</strong></td></tr>
+                </tbody></table></div>`;
+        }
+
+        // Calendar
+        let currentCalendarDate = new Date();
+        function loadCalendar() {
+            const data = getData();
+            const content = document.getElementById('mainContent');
+            autoImportPaymentDueDates();
+            const month = currentCalendarDate.getMonth(), year = currentCalendarDate.getFullYear();
+            const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+            const upcomingEvents = getUpcomingEvents(7);
+            content.innerHTML = `
+                <div class="page-header"><h1 class="page-title">Calendar</h1><p class="page-subtitle">Manage meetings and payment schedules</p></div>
+                <div style="display:grid;grid-template-columns:1fr 350px;gap:2rem;margin-bottom:2rem;">
+                    <div>
+                        ${currentUser.role !== 'Viewer' ? '<button class="btn btn-success" onclick="openCalendarEventModal()">+ Add Event</button>' : ''}
+                        ${data.googleCalendarConnected ?
+                            `<div class="google-sync-status" style="margin-top:1rem;"><div class="sync-indicator"></div><span><strong>Google Calendar Connected</strong></span><button class="btn btn-sm btn-secondary" onclick="disconnectGoogleCalendar()" style="margin-left:auto;">Disconnect</button></div>` :
+                            `<div class="google-sync-status disconnected" style="margin-top:1rem;"><div class="sync-indicator disconnected"></div><span>Google Calendar not connected</span><button class="btn btn-sm btn-primary" onclick="openGoogleSyncModal()" style="margin-left:auto;">Connect</button></div>`}
+                    </div><div></div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 350px;gap:2rem;">
+                    <div class="card">
+                        <div class="calendar-header">
+                            <div class="calendar-controls">
+                                <button class="btn-calendar-nav" onclick="previousMonth()">‹ Previous</button>
+                                <span class="calendar-month-year">${monthNames[month]} ${year}</span>
+                                <button class="btn-calendar-nav" onclick="nextMonth()">Next ›</button>
+                            </div>
+                            <button class="btn btn-secondary" onclick="goToToday()">Today</button>
+                        </div>
+                        ${renderCalendarGrid(month, year)}
+                        <div class="calendar-legend">
+                            <div class="legend-item"><div class="legend-color" style="background:var(--info);"></div><span>Meetings</span></div>
+                            <div class="legend-item"><div class="legend-color" style="background:var(--danger);"></div><span>Payments Due</span></div>
+                            <div class="legend-item"><div class="legend-color" style="background:var(--warning);"></div><span>Reminders</span></div>
+                        </div>
+                    </div>
+                    <div class="calendar-sidebar">
+                        <h3 style="margin-bottom:1rem;">Upcoming Events</h3>
+                        <div class="upcoming-events-list">
+                            ${upcomingEvents.length===0 ? '<div style="text-align:center;padding:2rem;color:var(--text-secondary);">📅<br>No upcoming events</div>' :
+                                upcomingEvents.map(ev => `<div class="upcoming-event event-${ev.type}" onclick="editCalendarEvent(${ev.id})">
+                                    <div class="upcoming-event-title">${ev.title}</div>
+                                    <div class="upcoming-event-date">${formatEventDateTime(ev.date, ev.time)}</div>
+                                    <span class="upcoming-event-type event-type-${ev.type}">${ev.type.charAt(0).toUpperCase()+ev.type.slice(1)}</span>
+                                </div>`).join('')}
+                        </div>
+                    </div>
+                </div>`;
+        }
+        function renderCalendarGrid(month, year) {
+            const data = getData();
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month+1, 0).getDate();
+            const daysInPrevMonth = new Date(year, month, 0).getDate();
+            const today = new Date();
+            let html = '<div class="calendar-grid">';
+            ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(d => { html += `<div class="calendar-day-header">${d}</div>`; });
+            for (let i = firstDay-1; i >= 0; i--) html += `<div class="calendar-day other-month"><div class="calendar-day-number">${daysInPrevMonth-i}</div></div>`;
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateStr = new Date(year, month, day).toISOString().split('T')[0];
+                const isToday = dateStr === today.toISOString().split('T')[0];
+                const dayEvents = data.calendarEvents.filter(e => e.date === dateStr);
+                html += `<div class="calendar-day ${isToday?'today':''}" onclick="openCalendarEventModal('${dateStr}')">
+                    <div class="calendar-day-number">${day}</div>
+                    <div class="calendar-events">${dayEvents.slice(0,3).map(ev => `<div class="calendar-event-item event-${ev.type}" onclick="event.stopPropagation();editCalendarEvent(${ev.id})">${ev.title}</div>`).join('')}
+                    ${dayEvents.length>3?`<div style="font-size:0.7rem;color:var(--text-secondary);">+${dayEvents.length-3} more</div>`:''}</div>
+                </div>`;
+            }
+            const remaining = 42 - (firstDay + daysInMonth);
+            for (let d = 1; d <= remaining; d++) html += `<div class="calendar-day other-month"><div class="calendar-day-number">${d}</div></div>`;
+            return html + '</div>';
+        }
+        function previousMonth() { currentCalendarDate.setMonth(currentCalendarDate.getMonth()-1); loadCalendar(); }
+        function nextMonth() { currentCalendarDate.setMonth(currentCalendarDate.getMonth()+1); loadCalendar(); }
+        function goToToday() { currentCalendarDate = new Date(); loadCalendar(); }
+        function openCalendarEventModal(presetDate=null) {
+            const data = getData();
+            document.getElementById('calendarEventModal').style.display = 'flex';
+            document.getElementById('eventModalTitle').textContent = 'Create Event';
+            document.getElementById('calendarEventForm').reset();
+            document.getElementById('eventId').value = '';
+            if (presetDate) document.getElementById('eventDate').value = presetDate;
+            else document.getElementById('eventDate').valueAsDate = new Date();
+            document.getElementById('eventTime').value = '09:00';
+            document.getElementById('eventContact').innerHTML = '<option value="">None</option>' + data.contacts.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+            updateEventTypeFields();
+        }
+        function updateEventTypeFields() {
+            const t = document.getElementById('eventType').value;
+            document.getElementById('eventDurationGroup').style.display = t==='payment'?'none':'block';
+            document.getElementById('eventAmountGroup').style.display = t==='payment'?'block':'none';
+        }
+        document.getElementById('calendarEventForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const data = getData();
+            const eventId = document.getElementById('eventId').value;
+            const syncToGoogle = document.getElementById('syncToGoogle').checked;
+            const eventData = { id: eventId?parseInt(eventId):(data.calendarEvents.length>0?Math.max(...data.calendarEvents.map(e=>e.id))+1:1), type: document.getElementById('eventType').value, title: document.getElementById('eventTitle').value, date: document.getElementById('eventDate').value, time: document.getElementById('eventTime').value, duration: parseInt(document.getElementById('eventDuration').value)||30, amount: document.getElementById('eventAmount').value?parseFloat(document.getElementById('eventAmount').value):null, description: document.getElementById('eventDescription').value, contactId: document.getElementById('eventContact').value?parseInt(document.getElementById('eventContact').value):null, syncedToGoogle: syncToGoogle&&data.googleCalendarConnected, createdBy: currentUser.id, createdDate: new Date().toISOString() };
+            if (eventId) { const i = data.calendarEvents.findIndex(e=>e.id===parseInt(eventId)); if(i!==-1) data.calendarEvents[i]=eventData; }
+            else data.calendarEvents.push(eventData);
+            saveData(data); closeModal('calendarEventModal'); loadCalendar();
+        });
+        function editCalendarEvent(eventId) {
+            const data = getData(); const event = data.calendarEvents.find(e=>e.id===eventId); if(!event) return;
+            if (currentUser.role==='Viewer') { alert(`Event: ${event.title}\nDate: ${formatEventDateTime(event.date,event.time)}\nType: ${event.type}`); return; }
+            document.getElementById('calendarEventModal').style.display = 'flex';
+            document.getElementById('eventModalTitle').textContent = 'Edit Event';
+            document.getElementById('eventId').value = event.id;
+            document.getElementById('eventType').value = event.type;
+            document.getElementById('eventTitle').value = event.title;
+            document.getElementById('eventDate').value = event.date;
+            document.getElementById('eventTime').value = event.time;
+            document.getElementById('eventDuration').value = event.duration;
+            document.getElementById('eventAmount').value = event.amount||'';
+            document.getElementById('eventDescription').value = event.description||'';
+            document.getElementById('eventContact').value = event.contactId||'';
+            document.getElementById('syncToGoogle').checked = event.syncedToGoogle||false;
+            updateEventTypeFields();
+        }
+        function getUpcomingEvents(days) {
+            const data = getData(); const today = new Date(); const future = new Date(); future.setDate(today.getDate()+days);
+            return data.calendarEvents.filter(e => { const d=new Date(e.date); return d>=today&&d<=future; }).sort((a,b)=>new Date(a.date+' '+a.time)-new Date(b.date+' '+b.time));
+        }
+        function formatEventDateTime(date, time) {
+            const d = new Date(date);
+            const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+            const [h,m] = time.split(':'); const hour=parseInt(h); const ampm=hour>=12?'PM':'AM'; const displayHour=hour%12||12;
+            return `${days[d.getDay()]}, ${months[d.getMonth()]} ${d.getDate()} at ${displayHour}:${m} ${ampm}`;
+        }
+        function autoImportPaymentDueDates() {
+            const data = getData();
+            data.invoices.forEach(inv => {
+                if (inv.status!=='Paid'&&inv.dueDate&&!data.calendarEvents.find(e=>e.type==='payment'&&e.title.includes(inv.number)&&e.date===inv.dueDate)) {
+                    data.calendarEvents.push({ id: data.calendarEvents.length>0?Math.max(...data.calendarEvents.map(e=>e.id))+1:1, type:'payment', title:`Payment Due: ${inv.number} - ${inv.customer}`, date:inv.dueDate, time:'09:00', duration:30, amount:inv.amount, description:`Invoice ${inv.number} due from ${inv.customer}`, contactId:null, syncedToGoogle:false, createdBy:'system', createdDate:new Date().toISOString(), autoImported:true });
+                }
+            });
+            saveData(data);
+        }
+        function openGoogleSyncModal() { document.getElementById('googleCalendarSyncModal').style.display = 'flex'; }
+        function connectGoogleCalendar() { const data=getData(); data.googleCalendarConnected=true; saveData(data); closeModal('googleCalendarSyncModal'); alert('✓ Google Calendar connected!'); loadCalendar(); }
+        function disconnectGoogleCalendar() { if(confirm('Disconnect Google Calendar?')) { const data=getData(); data.googleCalendarConnected=false; saveData(data); loadCalendar(); } }
+
+        // Contacts
+        function loadContacts() {
+            const data = getData();
+            const content = document.getElementById('mainContent');
+            const canEdit = currentUser.role==='Administrator'||currentUser.role==='Accountant';
+            content.innerHTML = `
+                <div class="page-header"><h1 class="page-title">Contacts</h1><p class="page-subtitle">Manage customers, vendors, and business contacts</p></div>
+                ${canEdit?'<button class="btn btn-success" onclick="openContactModal()">+ Add Contact</button>':''}
+                <div class="stats-grid" style="margin-top:1.5rem;">
+                    <div class="stat-card"><div class="stat-label">Total Contacts</div><div class="stat-value">${data.contacts.length}</div></div>
+                    <div class="stat-card"><div class="stat-label">Customers</div><div class="stat-value">${data.contacts.filter(c=>c.type==='Customer'||c.type==='Both').length}</div></div>
+                    <div class="stat-card"><div class="stat-label">Vendors</div><div class="stat-value">${data.contacts.filter(c=>c.type==='Vendor'||c.type==='Both').length}</div></div>
+                </div>
+                <div class="card"><h2 class="card-title">All Contacts</h2>
+                    <div class="table-container"><table>
+                        <thead><tr><th>Name</th><th>Company</th><th>Type</th><th>Email</th><th>Phone</th><th>Actions</th></tr></thead>
+                        <tbody>${data.contacts.length===0?'<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--text-secondary);">No contacts yet.</td></tr>':
+                            data.contacts.map(c=>`<tr><td><strong>${c.name}</strong></td><td>${c.company||'N/A'}</td><td><span class="badge badge-${getBadgeColor(c.type)}">${c.type}</span></td><td>${c.email}</td><td>${c.phone||'N/A'}</td>
+                            <td>${canEdit?`<button class="btn btn-sm btn-secondary" onclick="editContact(${c.id})">Edit</button><button class="btn btn-sm btn-danger" onclick="deleteContact(${c.id})" style="margin-left:0.25rem;">Delete</button>`:`<button class="btn btn-sm btn-primary" onclick="viewContactDetails(${c.id})">View</button>`}</td></tr>`).join('')}
+                        </tbody>
+                    </table></div></div>`;
+        }
+        function getBadgeColor(type) { return {Customer:'success',Vendor:'warning',Both:'info',Partner:'info',Employee:'info'}[type]||'info'; }
+        function openContactModal() { document.getElementById('contactModal').style.display='flex'; document.getElementById('contactForm').reset(); document.getElementById('editContactId').value=''; document.getElementById('contactModalTitle').textContent='Add Contact'; document.getElementById('contactSubmitBtn').textContent='Add Contact'; }
+        function viewContactDetails(id) { const c=getData().contacts.find(c=>c.id===id); if(!c) return; alert(`${c.name}\n${c.company||''}\n${c.type}\n${c.email}\n${c.phone||''}`); }
+        function editContact(contactId) {
+            const data=getData(); const c=data.contacts.find(c=>c.id===contactId); if(!c) return;
+            document.getElementById('contactModal').style.display='flex';
+            document.getElementById('contactModalTitle').textContent='Edit Contact'; document.getElementById('contactSubmitBtn').textContent='Update Contact';
+            document.getElementById('editContactId').value=c.id; document.getElementById('contactName').value=c.name;
+            document.getElementById('contactType').value=c.type; document.getElementById('contactEmail').value=c.email;
+            document.getElementById('contactPhone').value=c.phone||''; document.getElementById('contactMobile').value=c.mobile||'';
+            document.getElementById('contactAddress').value=c.address||''; document.getElementById('contactCompany').value=c.company||'';
+            document.getElementById('contactNotes').value=c.notes||'';
+        }
+        function deleteContact(id) {
+            const data=getData(); const c=data.contacts.find(c=>c.id===id); if(!c) return;
+            if(confirm(`Delete "${c.name}"?`)) { data.contacts=data.contacts.filter(c=>c.id!==id); saveData(data); loadContacts(); }
+        }
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const data=getData(); const contactId=document.getElementById('editContactId').value;
+            const cd={ name:document.getElementById('contactName').value, type:document.getElementById('contactType').value, email:document.getElementById('contactEmail').value, phone:document.getElementById('contactPhone').value, mobile:document.getElementById('contactMobile').value, address:document.getElementById('contactAddress').value, company:document.getElementById('contactCompany').value, notes:document.getElementById('contactNotes').value };
+            if(contactId) { const i=data.contacts.findIndex(c=>c.id==contactId); if(i!==-1) data.contacts[i]={id:parseInt(contactId),...cd}; }
+            else data.contacts.push({id:data.contacts.length>0?Math.max(...data.contacts.map(c=>c.id))+1:1,...cd});
+            saveData(data); closeModal('contactModal'); loadContacts();
+        });
+
+        // User Management
+        function loadUsers() {
+            const data = getData(); const content = document.getElementById('mainContent');
+            if (currentUser.role !== 'Administrator') { content.innerHTML = '<div class="page-header"><h1 class="page-title">Access Denied</h1></div><div class="card"><p>Administrators only.</p></div>'; return; }
+            content.innerHTML = `
+                <div class="page-header"><h1 class="page-title">User Management</h1><p class="page-subtitle">Manage user accounts and permissions</p></div>
+                <button class="btn btn-success" onclick="openUserModal()" style="margin-bottom:2rem;">+ Create New User</button>
+                <div class="card"><h2 class="card-title">System Users</h2>
+                    <div class="table-container"><table>
+                        <thead><tr><th>Name</th><th>Username</th><th>Role</th><th>MFA</th><th>Actions</th></tr></thead>
+                        <tbody>${data.users.map(u=>`<tr><td><strong>${u.name}</strong></td><td>${u.username}</td>
+                            <td><span class="badge badge-${u.role==='Administrator'?'danger':u.role==='Accountant'?'warning':'info'}">${u.role}</span></td>
+                            <td>${u.mfaEnabled?'<span class="badge badge-success">✓ On</span>':'<span class="badge badge-warning">Off</span>'}</td>
+                            <td><button class="btn btn-sm btn-secondary" onclick="openEditRoleModal(${u.id})" ${u.id===currentUser.id?'disabled':''}>Change Role</button>
+                            ${u.id!==currentUser.id?`<button class="btn btn-sm btn-danger" onclick="deleteUser(${u.id})" style="margin-left:0.25rem;">Delete</button>`:''}</td></tr>`).join('')}
+                        </tbody>
+                    </table></div></div>
+                <div class="card"><h2 class="card-title">Role Permissions</h2>
+                    <table><thead><tr><th>Permission</th><th>Administrator</th><th>Accountant</th><th>Viewer</th></tr></thead>
+                    <tbody>
+                        <tr><td>View Reports & Data</td><td style="text-align:center">✓</td><td style="text-align:center">✓</td><td style="text-align:center">✓</td></tr>
+                        <tr><td>Create Transactions</td><td style="text-align:center">✓</td><td style="text-align:center">✓</td><td style="text-align:center">✗</td></tr>
+                        <tr><td>Edit/Delete Invoices & Expenses</td><td style="text-align:center">✓</td><td style="text-align:center">✓</td><td style="text-align:center">✗</td></tr>
+                        <tr><td>User Management</td><td style="text-align:center">✓</td><td style="text-align:center">✗</td><td style="text-align:center">✗</td></tr>
+                    </tbody></table></div>`;
+        }
+        function openUserModal() { document.getElementById('userModal').style.display='flex'; document.getElementById('userModalTitle').textContent='Create New User'; document.getElementById('userForm').reset(); document.getElementById('editUserId').value=''; document.getElementById('userRole').value='Viewer'; document.getElementById('userPassword').required=true; }
+        function openEditRoleModal(userId) {
+            const data=getData(); const u=data.users.find(u=>u.id===userId); if(!u) return;
+            document.getElementById('editRoleModal').style.display='flex'; document.getElementById('editRoleUserId').value=u.id; document.getElementById('editRoleUserName').value=u.name; document.getElementById('editRoleCurrentRole').value=u.role; document.getElementById('editRoleNewRole').value=u.role;
+        }
+        document.getElementById('userForm').addEventListener('submit', function(e) {
+            e.preventDefault(); const data=getData();
+            const userId=document.getElementById('editUserId').value;
+            const username=document.getElementById('userUsername').value.toLowerCase().trim();
+            const name=document.getElementById('userName').value.trim();
+            const password=document.getElementById('userPassword').value;
+            const role=document.getElementById('userRole').value;
+            if(data.users.find(u=>u.username===username&&u.id!=userId)) { alert('Username already exists.'); return; }
+            if(userId) { const i=data.users.findIndex(u=>u.id==userId); if(i!==-1){ data.users[i].name=name; data.users[i].username=username; if(password) data.users[i].password=password; data.users[i].role=role; } }
+            else { data.users.push({ id:data.users.length>0?Math.max(...data.users.map(u=>u.id))+1:1, username, password, name, role, mfaEnabled:false, mfaSecret:null, backupCodes:[] }); alert(`✓ User "${name}" created with ${role} role.`); }
+            saveData(data); closeModal('userModal'); loadUsers();
+        });
+        document.getElementById('editRoleForm').addEventListener('submit', function(e) {
+            e.preventDefault(); const data=getData();
+            const userId=parseInt(document.getElementById('editRoleUserId').value);
+            const newRole=document.getElementById('editRoleNewRole').value;
+            const i=data.users.findIndex(u=>u.id===userId);
+            if(i!==-1) { const old=data.users[i].role; data.users[i].role=newRole; saveData(data); closeModal('editRoleModal'); loadUsers(); alert(`Role changed from ${old} to ${newRole}.`); }
+        });
+        function deleteUser(userId) {
+            const data=getData(); const u=data.users.find(u=>u.id===userId); if(!u) return;
+            if(userId===currentUser.id) { alert('Cannot delete your own account.'); return; }
+            if(u.role==='Administrator'&&data.users.filter(u=>u.role==='Administrator').length<=1) { alert('Cannot delete last administrator.'); return; }
+            if(confirm(`Delete user "${u.name}"?`)) { data.users=data.users.filter(u=>u.id!==userId); saveData(data); loadUsers(); }
+        }
+
+        // Utility functions
+        function viewFullImage(dataUrl, filename) {
+            const w = window.open();
+            w.document.write(`<!DOCTYPE html><html><head><title>${filename}</title><style>body{margin:0;padding:20px;background:#000;display:flex;justify-content:center;align-items:center;min-height:100vh;}img{max-width:100%;max-height:100vh;object-fit:contain;}</style></head><body><img src="${dataUrl}" alt="${filename}"></body></html>`);
+        }
+        function downloadScan(dataUrl, filename, event) {
+            if(event) event.stopPropagation();
+            const a=document.createElement('a'); a.href=dataUrl; a.download=filename; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        }
+        function closeModal(modalId) { document.getElementById(modalId).style.display='none'; }
+        window.onclick = function(event) { if(event.target.classList.contains('modal')) event.target.style.display='none'; };
+        window.addEventListener('resize', function() { if(window.innerWidth>1024) closeSidebar(); });
+        document.addEventListener('keydown', function(e) { if(e.key==='Escape') closeSidebar(); });
+
+        initializeData();
+    </script>
+</body>
+</html>
